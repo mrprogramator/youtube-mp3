@@ -20,7 +20,7 @@ var server = app.listen(process.env.PORT,function () {
 
 app.post('/', function(req, res) {
   var url = req.body.name;
-  console.log('uploading music');
+  console.log('uploading music: ' + url);
   
   dl = child_process.spawn("./youtube-dl", ['-o', url + ".%(ext)s", '--extract-audio','-c','ytsearch:' + url]);
   
@@ -45,7 +45,7 @@ app.post('/', function(req, res) {
 
 app.post('/video', function(req, res) {
   var url = req.body.videoUrl;
-  console.log('uploading video');
+  console.log('uploading video:' + url);
   
   dl = child_process.spawn("./youtube-dl", ['-o', url + ".%(ext)s",'-c','ytsearch:' + url]);
   
