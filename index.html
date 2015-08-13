@@ -50,5 +50,12 @@
       <p>Desarrollado por Luis Alberto Saucedo Quiroga</p>
       <p>Copyright <span class="glyphicon glyphicon-copyright-mark"></span> 2015</p>
     </footer>
+    <script type="text/javascript">
+      $("input").keypress(function(e){
+          var charCode = !e.charCode ? e.which : e.charCode;
+          if(charCode == 39 || charCode == 34 || charCode == 64)
+              e.preventDefault();
+      })
+    </script>
   </body>
 </html>
