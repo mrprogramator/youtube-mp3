@@ -8,6 +8,6 @@
     "body-parser": "*",
     "fs": "*",
     "path": "*",
-    "util": "*",
+    "util": "*"
   }
 }
