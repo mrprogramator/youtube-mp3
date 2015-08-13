@@ -8,6 +8,7 @@
     "body-parser": "*",
     "fs": "*",
     "path": "*",
-    "util": "*"
+    "util": "*",
+    "fluent-ffmpeg": "~1.7"
   }
 }
