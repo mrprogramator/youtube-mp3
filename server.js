@@ -22,7 +22,7 @@ app.post('/', function(req, res) {
   var url = req.body.name;
   console.log('uploading music');
   
-  dl = child_process.spawn("./youtube-dl", ['-o', url + ".%(ext)s", '--extract-audio','--audio-format', 'mp3','-c','ytsearch:' + url]);
+  dl = child_process.spawn("./youtube-dl", ['-o', url + ".%(ext)s", '--extract-audio','-c','ytsearch:' + url]);
   
   dl.stdout.on('data', function (data) {
     console.log('stdout: ' + data);
@@ -34,7 +34,7 @@ app.post('/', function(req, res) {
 
   dl.on('exit', function (code) {
     console.log('child process exited with code ' + code);
-    var file = __dirname + '/' + url + '.mp3';
+    var file = __dirname + '/' + url + '.m4a';
     res.download(file);
     res.on('finish', function () { 
       console.log('F I N I S H E D');
