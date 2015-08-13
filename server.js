@@ -21,7 +21,7 @@ app.post('/', function(req, res) {
   var url = req.body.name;
   console.log('uploading music');
   
-  dl = child_process.spawn("youtube-dl", ['-o', url + ".%(ext)s", '--extract-audio','--audio-format', 'mp3','-c','ytsearch:' + url]);
+  dl = child_process.spawn("./youtube-dl", ['-o', url + ".%(ext)s", '--extract-audio','--audio-format', 'mp3','-c','ytsearch:' + url]);
   
   dl.stdout.on('data', function (data) {
     console.log('stdout: ' + data);
@@ -46,7 +46,7 @@ app.post('/video', function(req, res) {
   var url = req.body.videoUrl;
   console.log('uploading video');
   
-  dl = child_process.spawn("youtube-dl", ['-o', url + ".%(ext)s",'-c','ytsearch:' + url]);
+  dl = child_process.spawn("./youtube-dl", ['-o', url + ".%(ext)s",'-c','ytsearch:' + url]);
   
   dl.stdout.on('data', function (data) {
     console.log('stdout: ' + data);
