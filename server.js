@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/', function (req, res) {
   res.sendFile('index.html', { root: path.join(__dirname, '/') });
 });
-
+app.use(express.static(__dirname + '/public'));
 var server = app.listen(process.env.PORT,function () {
   console.log("listening");
 });
