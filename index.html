@@ -1,0 +1,46 @@
+<html>
+  <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>YouTube Mp3</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.css" rel="stylesheet">
+  </head>
+  <body >
+  <style type="text/css">
+    .container {
+      max-width: 800px;
+      margin: 5 auto;
+    }
+    @media screen and (max-width: 600px) {
+      .container {
+          max-width: 400px;
+          margin: 5 auto;
+      }
+      .btn-primary{
+        width:100%;
+      }
+    }
+  </style>
+  <div class="container">
+      <form method="POST" action="/" >
+        <h3 class="page-header text-center">YouTube Music</h3>
+        <div class="form-group">
+          <label class="label-control">URL</label>
+          <input class="form-control" name="name" id="name" placeholder="Ingrese un nombre o URL">
+        </div>
+        <button type="submit" class="btn btn-lg btn-primary">Descargar</button>
+    </form>
+  </div>
+  <div class="container" sytle="margin:80px auto;max-width:200px">
+    <form method="POST" action="/video" >
+        <h3 class="page-header text-center">YouTube Video</h3>
+        <div class="form-group">
+          <label class="label-control">URL</label>
+          <input class="form-control" name="videoUrl" id="videoUrl" placeholder="Ingrese un nombre o URL">
+        </div>
+        <button type="submit" class="btn btn-lg btn-primary">Descargar</button>
+    </form>
+  </div>
+    <script src="//code.jquery.com/jquery-2.1.4.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.js"></script>
+  </body>
+</html>
