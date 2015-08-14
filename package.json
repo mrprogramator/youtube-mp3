@@ -9,6 +9,8 @@
     "fs": "*",
     "path": "*",
     "util": "*",
-    "fluent-ffmpeg": "~1.7"
+    "fluent-ffmpeg": "~1.7",
+    "glob": "*",
+    "mime-db": "*"
   }
 }
