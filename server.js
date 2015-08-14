@@ -55,7 +55,7 @@ app.post('/', function(req, res) {
         .withAudioCodec('libmp3lame')
         .toFormat('mp3')
         .saveToFile(url + '.mp3');
-      
+        .setFfmpegPath("node_modules/fluent-ffmpeg/lib/fluent-ffmpeg.js");
       command.on('start', function () {
         console.log('Starting convertion to mp3');
       });
