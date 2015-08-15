@@ -19,39 +19,45 @@ var server = app.listen(process.env.PORT || 8080,function () {
 
 app.post('/', function(req, res) {
   var url = req.body.name;
-  var name = '';
-  if (url.indexOf(''))
-  console.log('uploading music: ' + url);
-  fname = child_process.spawn("./youtube-dl", ['--get-filename','--ffmpeg-location','./ffmpeg','-o', "'%(title)s'.'%(ext)s'", '--extract-audio','--audio-format','mp3','-c','ytsearch:' + url]);
-  
-  fname.stdout.on('data', function (data) {
-    name = data;
+  var name = url;
+  console.log('getting title...');
+  child_process.spawn("pwd",['-LP']);
+  dl = child_process.spawn("./youtube-dl", ['--get-title','-o',"%(title)s.%(ext)s",'--extract-audio','--audio-format','mp3','ytsearch:' + url]);
+  var nameCatched = false;
+  dl.stdout.on('data', function (data) {
+    console.log('stdout: ' + data);
+    
+    if (nameCatched){
+      return;
+    }
+    
+    name = String(data);
+    console.log('name:',name);
+    nameCatched = true;
   });
-  
-  fname.stderr.on('data', function (data) {
+
+  dl.stderr.on('data', function (data) {
     console.log('stderr: ' + data);
-    name = url;
   });
-  
-  fname.on('finish', function (code) {
-    console.log('Finishing obtaining name with code ' + code);
-    dl = child_process.spawn("./youtube-dl", ['--ffmpeg-location','./ffmpeg','-o',"'%(title)s'.'%(ext)s'", '--extract-audio','--audio-format','mp3','-c','ytsearch:' + url]);
-  
-    dl.stdout.on('data', function (data) {
+
+  dl.on('exit', function (code) {
+    console.log('child process exited with code ' + code);
+    var xx = child_process.spawn("./youtube-dl", ['--ffmpeg-location','./ffmpeg','-o',"%(title)s.%(ext)s", '--extract-audio','--audio-format','mp3','-c','ytsearch:' + url]);
+    xx.stdout.on('data', function (data) {
       console.log('stdout: ' + data);
+      console.log('name:',name);
     });
-  
-    dl.stderr.on('data', function (data) {
+
+    xx.stderr.on('data', function (data) {
       console.log('stderr: ' + data);
     });
-  
-    dl.on('exit', function (code) {
-      console.log('child process exited with code ' + code);
-      var nameUncode = name.substring(0, name.indexOf('.'));
-      glob(nameUncode + '.*', function(err, files) {
+    xx.on('exit', function (code) {
+      name = name.substring(0,name.length - 1);
+      name = name.concat('.*');
+      glob(name, function(err, files) {
         if (files.length == 0){
-          console.log('No se encuentra el archivo');
-          res.send('No se encuentra el archivo ' + nameUncode);
+          console.log('No se encuentra el archivo ' + name);
+          res.send('No se encuentra el archivo ' + name);
           return;
         }
         
@@ -65,24 +71,31 @@ app.post('/', function(req, res) {
               res.send('Error al borrar archivo mp3 :' + err);
               return;
             }
-            console.log('successfully deleted ' + nameUncode + '.mp3');
+            console.log('successfully deleted ' + name + '.mp3');
           });
         });
       });
     });
+    
   });
-  
-  
 });
 
 app.post('/video', function(req, res) {
   var url = req.body.videoUrl;
-  console.log('uploading video:' + url);
-  
-  dl = child_process.spawn("./youtube-dl", ['-o', url + ".%(ext)s",'-c','ytsearch:' + url]);
-  
+  var name = url;
+  console.log('getting title...');
+  dl = child_process.spawn("./youtube-dl", ['--get-title','ytsearch:' + url]);
+  var nameCatched = false;
   dl.stdout.on('data', function (data) {
     console.log('stdout: ' + data);
+    
+    if (nameCatched){
+      return;
+    }
+    
+    name = String(data);
+    console.log('name:',name);
+    nameCatched = true;
   });
 
   dl.stderr.on('data', function (data) {
@@ -91,19 +104,40 @@ app.post('/video', function(req, res) {
 
   dl.on('exit', function (code) {
     console.log('child process exited with code ' + code);
-    glob(url + '.*', function(err, files) {
-      if (files.length == 0){
-        console.log('No se encuentra el archivo');
-        res.send('No se encuentra el archivo ' + url);
-        return;
-      }
-      
-      var file = files[0];
-      res.download(file);
-      res.on('finish', function () {
-        console.log('F I N I S H E D');
-        fs.unlinkSync(file);
+    var xx = child_process.spawn("./youtube-dl", ['--ffmpeg-location','./ffmpeg','-o',"%(title)s.%(ext)s",'-c','ytsearch:' + url]);
+    xx.stdout.on('data', function (data) {
+      console.log('stdout: ' + data);
+      console.log('name:',name);
+    });
+
+    xx.stderr.on('data', function (data) {
+      console.log('stderr: ' + data);
+    });
+    xx.on('exit', function (code) {
+      name = name.substring(0,name.length - 1);
+      name = name.concat('.*');
+      glob(name, function(err, files) {
+        if (files.length == 0){
+          console.log('No se encuentra el archivo ' + name);
+          res.send('No se encuentra el archivo ' + name);
+          return;
+        }
+        
+        var file = files[0];
+        res.download(file);
+        res.on('finish', function () {
+          console.log('F I N I S H E D');
+          console.log('deleting ', file);
+          fs.unlinkSync(file, function (err) {
+            if (err){
+              res.send('Error al borrar archivo de video :' + err);
+              return;
+            }
+            console.log('successfully deleted ' + name);
+          });
+        });
       });
     });
+    
   });
 });
