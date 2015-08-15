@@ -56,8 +56,27 @@ app.post('/', function(req, res) {
       name = name.concat('.*');
       glob(name, function(err, files) {
         if (files.length == 0){
-          console.log('No se encuentra el archivo ' + name);
-          res.send('No se encuentra el archivo ' + name);
+          console.log('No se encontro por nombre, forzando a mp3');
+          glob('*.mp3',function(err, subfiles){
+              if (subfiles.length == 0){
+                  console.log('No se encuentra el archivo ' + name);
+                  res.send('No se encuentra el archivo ' + name);
+                  return;
+              }
+              var file = subfiles[0];
+              res.download(file);
+              res.on('finish', function () {
+                console.log('F I N I S H E D');
+                console.log('deleting ', file);
+                fs.unlinkSync(file, function (err) {
+                  if (err){
+                    res.send('Error al borrar archivo mp3 :' + err);
+                    return;
+                  }
+                  console.log('successfully deleted ' + name + '.mp3');
+                });
+              });
+          });
           return;
         }
         
@@ -118,8 +137,27 @@ app.post('/video', function(req, res) {
       name = name.concat('.*');
       glob(name, function(err, files) {
         if (files.length == 0){
-          console.log('No se encuentra el archivo ' + name);
-          res.send('No se encuentra el archivo ' + name);
+          console.log('No se encontro por nombre, forzando a mp4');
+          glob('*.mp4',function(err, subfiles){
+              if (subfiles.length == 0){
+                  console.log('No se encuentra el archivo ' + name);
+                  res.send('No se encuentra el archivo ' + name);
+                  return;
+              }
+              var file = subfiles[0];
+              res.download(file);
+              res.on('finish', function () {
+                console.log('F I N I S H E D');
+                console.log('deleting ', file);
+                fs.unlinkSync(file, function (err) {
+                  if (err){
+                    res.send('Error al borrar archivo :' + err);
+                    return;
+                  }
+                  console.log('successfully deleted ' + name);
+                });
+              });
+          });
           return;
         }
         
