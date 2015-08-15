@@ -12,6 +12,6 @@
     "ffmpeg":"*",
     "fluent-ffmpeg": "~1.7",
     "glob": "*",
-    "mime-db": "*",
+    "mime-db": "*"
   }
 }
