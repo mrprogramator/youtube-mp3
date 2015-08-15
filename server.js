@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 var util  = require('util');
 var glob = require('glob');
 var ffmpeg = require('ffmpeg');
+var ffprobe = require('node-ffprobe');
 
 var Ffmpeg = require('fluent-ffmpeg');
 
