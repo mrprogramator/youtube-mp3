@@ -20,6 +20,7 @@ var server = app.listen(process.env.PORT || 8080,function () {
 app.post('/', function(req, res) {
   var url = req.body.name;
   console.log('uploading music: ' + url);
+  child_process.spawn("pwd",['-LP']);
   dl = child_process.spawn("./youtube-dl", ['--ffmpeg-location','./ffmpeg','-o', url + ".%(ext)s", '--extract-audio','--audio-format','mp3','-c','ytsearch:' + url]);
   
   dl.stdout.on('data', function (data) {
