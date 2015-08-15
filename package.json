@@ -10,6 +10,7 @@
     "path": "*",
     "util": "*",
     "ffmpeg":"*",
+    "node-ffprobe":"*",
     "fluent-ffmpeg": "~1.7",
     "glob": "*",
     "mime-db": "*"
