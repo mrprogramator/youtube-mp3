@@ -10,12 +10,6 @@ var glob = require('glob');
 
 var Ffmpeg = require('fluent-ffmpeg');
 
-process.on('uncaughtException', function (err) {
-  console.error(err);
-  console.log("Node NOT Exiting...");
-});
-
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/', function (req, res) {
   res.sendFile('index.html', { root: path.join(__dirname, '/') });
@@ -54,7 +48,7 @@ app.post('/', function(req, res) {
       var command = new Ffmpeg({source: file})
         .withAudioCodec('libmp3lame')
         .toFormat('mp3')
-        .saveToFile(url + '.mp3');
+        .saveToFile(url + '.mp3')
         .setFfmpegPath("node_modules/fluent-ffmpeg/lib/fluent-ffmpeg.js");
       command.on('start', function () {
         console.log('Starting convertion to mp3');
