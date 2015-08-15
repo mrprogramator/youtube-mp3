@@ -7,6 +7,7 @@ var fs = require('fs');
 var bodyParser = require('body-parser');
 var util  = require('util');
 var glob = require('glob');
+var ffmpeg = require('ffmpeg');
 
 var Ffmpeg = require('fluent-ffmpeg');
 
@@ -48,8 +49,7 @@ app.post('/', function(req, res) {
       var command = new Ffmpeg({source: file})
         .withAudioCodec('libmp3lame')
         .toFormat('mp3')
-        .saveToFile(url + '.mp3')
-        .setFfmpegPath("node_modules/fluent-ffmpeg/lib/fluent-ffmpeg.js");
+        .saveToFile(url + '.mp3');
       command.on('start', function () {
         console.log('Starting convertion to mp3');
       });
