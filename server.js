@@ -141,6 +141,28 @@ app.post('/video', function(req, res) {
           glob('*.mp4',function(err, subfiles){
               if (subfiles.length == 0){
                   console.log('No se encuentra el archivo ' + name);
+                  console.log('No se encontro por nombre, forzando a webm');
+                  glob('*.webm',function(err, subfiles2){
+                      if (subfiles2.length == 0){
+                          console.log('No se encuentra el archivo ' + name);
+                          res.send('No se encuentra el archivo ' + name);
+                          return;
+                      }
+                      var file = subfiles2[0];
+                      res.download(file);
+                      res.on('finish', function () {
+                        console.log('F I N I S H E D');
+                        console.log('deleting ', file);
+                        fs.unlinkSync(file, function (err) {
+                          if (err){
+                            res.send('Error al borrar archivo :' + err);
+                            return;
+                          }
+                          console.log('successfully deleted ' + name);
+                        });
+                      });
+                  });
+                  return;
                   res.send('No se encuentra el archivo ' + name);
                   return;
               }
