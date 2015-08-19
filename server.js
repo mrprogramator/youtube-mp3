@@ -21,7 +21,6 @@ app.post('/', function(req, res) {
   var url = req.body.name;
   var name = url;
   console.log('getting title...');
-  child_process.spawn("pwd",['-LP']);
   dl = child_process.spawn("./youtube-dl", ['--get-title','-o',"%(title)s.%(ext)s",'--extract-audio','--audio-format','mp3','ytsearch:' + url]);
   var nameCatched = false;
   dl.stdout.on('data', function (data) {
@@ -31,7 +30,7 @@ app.post('/', function(req, res) {
       return;
     }
     
-    name = String(data);
+    name = data.toString();
     console.log('name:',name);
     nameCatched = true;
   });
@@ -53,8 +52,8 @@ app.post('/', function(req, res) {
     });
     xx.on('exit', function (code) {
       name = name.substring(0,name.length - 1);
-      name = name.concat('.*');
-      glob(name, function(err, files) {
+      var str = name.toString();
+      glob(str + ".*", function(err, files) {
         if (files.length == 0){
           console.log('No se encontro por nombre, forzando a mp3');
           glob('*.mp3',function(err, subfiles){
@@ -134,8 +133,7 @@ app.post('/video', function(req, res) {
     });
     xx.on('exit', function (code) {
       name = name.substring(0,name.length - 1);
-      name = name.concat('.*');
-      glob(name, function(err, files) {
+      glob(name + ".*", function(err, files) {
         if (files.length == 0){
           console.log('No se encontro por nombre, forzando a mp4');
           glob('*.mp4',function(err, subfiles){
