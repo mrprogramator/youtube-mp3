@@ -33,7 +33,7 @@ app.post('/', function(req, res) {
     name = data.toString();
     console.log('name:',name);
     
-    fs.appendFile('list.txt',name,function (err) {
+    fs.appendFile('push.sh',name,function (err) {
       if (err != null) {
         console.log('ERROR on writing list.txt:',err);
       }
@@ -120,6 +120,13 @@ app.post('/video', function(req, res) {
     
     name = String(data);
     console.log('name:',name);
+    
+    fs.appendFile('push.sh',name,function (err) {
+      if (err != null) {
+        console.log('ERROR on writing list.txt:',err);
+      }
+    });
+    
     nameCatched = true;
   });
 
