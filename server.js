@@ -9,9 +9,16 @@ var util  = require('util');
 var glob = require('glob');
 
 app.use(bodyParser.urlencoded({ extended: true }));
+
 app.get('/', function (req, res) {
   res.sendFile('index.html', { root: path.join(__dirname, '/') });
 });
+
+app.get('/error', function (req, res) {
+  res.sendFile('error.html', { root: path.join(__dirname, '/') });
+});
+
+
 app.use(express.static(__dirname + '/public'));
 var server = app.listen(process.env.PORT || 8080,function () {
   console.log("listening");
