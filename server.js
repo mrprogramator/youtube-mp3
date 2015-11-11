@@ -1,6 +1,6 @@
 var express = require('express');
 var child_process = require('child_process');
-var sys = require('sys');
+var sys = require('util');
 var app = express();
 var path = require('path');
 var fs = require('fs');
@@ -28,7 +28,7 @@ app.post('/music', function(req, res) {
   var url = req.body.name;
   var name = url;
   console.log('getting title...');
-  dl = child_process.spawn("./youtube-dl", ['--get-title','-o',"%(title)s.%(ext)s",'--extract-audio','--audio-format','mp3','ytsearch:' + url]);
+  dl = child_process.spawn("./youtube-dl", ['--get-title','--default-search','ytsearch',url]);
   var nameCatched = false;
   dl.stdout.on('data', function (data) {
     console.log('stdout: ' + data);
@@ -55,7 +55,7 @@ app.post('/music', function(req, res) {
 
   dl.on('exit', function (code) {
     console.log('child process exited with code ' + code);
-    var xx = child_process.spawn("./youtube-dl", ['--ffmpeg-location','./ffmpeg','-o',"%(title)s.%(ext)s",'--extract-audio','--audio-format','mp3','--max-downloads','1','-c','ytsearch:' + url]);
+    var xx = child_process.spawn("./youtube-dl", ['--ffmpeg-location','./ffmpeg','--extract-audio','--audio-format','mp3','--max-downloads','1','-c','--default-search','ytsearch',url]);
     xx.stdout.on('data', function (data) {
       console.log('stdout: ' + data);
       console.log('name:',name);
@@ -116,7 +116,7 @@ app.post('/video', function(req, res) {
   var url = req.body.videoUrl;
   var name = url;
   console.log('getting title...');
-  dl = child_process.spawn("./youtube-dl", ['--get-title','ytsearch:' + url]);
+  dl = child_process.spawn("./youtube-dl", ['--get-title','--default-search','ytsearch',url]);
   var nameCatched = false;
   dl.stdout.on('data', function (data) {
     console.log('stdout: ' + data);
@@ -143,7 +143,7 @@ app.post('/video', function(req, res) {
 
   dl.on('exit', function (code) {
     console.log('child process exited with code ' + code);
-    var xx = child_process.spawn("./youtube-dl", ['--ffmpeg-location','./ffmpeg','-o',"%(title)s.%(ext)s",'-c','ytsearch:' + url]);
+    var xx = child_process.spawn("./youtube-dl", ['--ffmpeg-location','./ffmpeg','--default-search','ytsearch',url]);
     xx.stdout.on('data', function (data) {
       console.log('stdout: ' + data);
       console.log('name:',name);
