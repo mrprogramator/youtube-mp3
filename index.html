@@ -35,7 +35,7 @@
     }
   </style>
   <div class="container">
-      <form method="POST" action="/" >
+      <form method="POST" action="/music" >
         <h3 class="page-header text-center">YouTube Music <span class="glyphicon glyphicon-music"></span></h3>
         <div class="form-group">
           <label class="label-control">Nombre o URL</label>
@@ -69,6 +69,16 @@
           if(charCode == 39 || charCode == 34 || charCode == 64)
               e.preventDefault();
       })
+      
+      function getMusic() {
+        return $.ajax({
+          type:'POST',
+          url:'/music',
+          async: false
+        })
+          
+        }
+        
     </script>
   </body>
 </html>

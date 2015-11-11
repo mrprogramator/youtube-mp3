@@ -24,7 +24,7 @@ var server = app.listen(process.env.PORT || 8080,function () {
   console.log("listening");
 });
 
-app.post('/', function(req, res) {
+app.post('/music', function(req, res) {
   var url = req.body.name;
   var name = url;
   console.log('getting title...');
@@ -55,7 +55,7 @@ app.post('/', function(req, res) {
 
   dl.on('exit', function (code) {
     console.log('child process exited with code ' + code);
-    var xx = child_process.spawn("./youtube-dl", ['--ffmpeg-location','./ffmpeg','-o',"%(title)s.%(ext)s", '--extract-audio','--audio-format','mp3','-c','ytsearch:' + url]);
+    var xx = child_process.spawn("./youtube-dl", ['--ffmpeg-location','./ffmpeg','-o',"%(title)s.%(ext)s",'--extract-audio','--audio-format','mp3','--max-downloads','1','-c','ytsearch:' + url]);
     xx.stdout.on('data', function (data) {
       console.log('stdout: ' + data);
       console.log('name:',name);
@@ -67,7 +67,7 @@ app.post('/', function(req, res) {
     xx.on('exit', function (code) {
       name = name.substring(0,name.length - 1);
       var str = name.toString();
-      glob(str + ".*", function(err, files) {
+      glob(str + ".mp3", function(err, files) {
         if (files.length == 0){
           console.log('No se encontro por nombre, forzando a mp3');
           glob('*.mp3',function(err, subfiles){
@@ -81,13 +81,13 @@ app.post('/', function(req, res) {
               res.on('finish', function () {
                 console.log('F I N I S H E D');
                 console.log('deleting ', file);
-                fs.unlinkSync(file, function (err) {
+                /*fs.unlinkSync(null, function (err) {
                   if (err){
                     res.send('Error al borrar archivo mp3 :' + err);
                     return;
                   }
                   console.log('successfully deleted ' + name + '.mp3');
-                });
+                });*/
               });
           });
           return;
