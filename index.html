@@ -40,6 +40,8 @@
           Buscar
           <span class="glyphicon glyphicon-search" style="margin-left:10px"></span>
           </button>
+        </form>
+          
         <p ng-if="musicRequestLog">
           <h3 ng-repeat="log in musicRequestLog">
             {{log.text}}
@@ -50,12 +52,14 @@
               <audio ng-if="audioUrl" ng-src="{{audioUrl}}" controls="true"></audio>
             </div>
             <p>
-              <a ng-click="download(audioUrl, name)" class="btn btn-lg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></a>
+              <form method="POST" action="/download">
+                <input name="name" ng-model="name" hidden="true"/>
+                <button type="submit" class="btn btn-lg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></button>
+              </form>
             </p>
           </div>
           
         </p>
-    </form>
   </div>
   <div class="container" sytle="margin:80px auto;max-width:200px">
     <form method="POST" ng-submit="handleVideoRequest(videoQuery)" >
@@ -68,6 +72,7 @@
           Buscar
           <span class="glyphicon glyphicon-search" style="margin-left:10px"></span>
         </button>
+         </form>
         <p ng-if="videoRequestLog">
           <h3 ng-repeat="log in videoRequestLog">
             {{log.text}}
@@ -78,13 +83,16 @@
               <iframe class="embed-responsive-item" ng-src="{{videoUrl}}"></iframe>
             </div>
             <p>
-              <a ng-click="download(videoUrl, videoName)" class="btn btn-lg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></a>
+              <form method="POST" action="/download">
+                <input name="name" ng-model="videoName" hidden="true"/>
+                <button type="submit" class="btn btn-lg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></button>
+              </form>
             </p>
           </div>
           
         </p>
 
-    </form>
+   
   </div>
   <div class="page-footer" >
     <div>
