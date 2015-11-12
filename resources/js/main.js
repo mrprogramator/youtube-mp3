@@ -69,9 +69,6 @@ app.controller('MainController', function ($http, $scope, $timeout){
       return promise;
     }
     
-    $scope.musicRequestLog = [];
-    $scope.videoRequestLog = [];
-    
     testDownload = function () {
       downloadFile('Radiohead - Creep').then(function (promise) {
             console.log(promise.data);
@@ -82,6 +79,8 @@ app.controller('MainController', function ($http, $scope, $timeout){
     }
     
     $scope.handleMusicRequest = function (query) {
+      
+      $scope.musicRequestLog = [];
       
       $scope.canSearchMusic = false;
       
@@ -113,6 +112,9 @@ app.controller('MainController', function ($http, $scope, $timeout){
     }
     
     $scope.handleVideoRequest = function (query) {
+      
+      $scope.videoRequestLog = [];
+      
       $scope.canSearchVideo = false;
       
       var log = { text: "Obteniendo el título del video...", loading: true}
