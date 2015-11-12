@@ -157,4 +157,8 @@ app.controller('MainController', function ($http, $scope, $timeout){
         console.log(url, name);
         downloadURI(url, name);
     }
+    
+    $scope.fullscreen = function (url) {
+      window.open(url, "video", "fullscreen=yes");
+    }
 });

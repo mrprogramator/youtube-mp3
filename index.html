@@ -85,6 +85,7 @@
             <p>
               <form method="POST" action="/download">
                 <input name="name" ng-model="videoName" hidden="true"/>
+                <a class="btn btn-lg btn-default pull-right" ng-click="fullscreen(videoUrl)">Pantalla Completa<span style="left:10px" class="glyphicon glyphicon-fullscreen"></span></a>
                 <button type="submit" class="btn btn-lg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></button>
               </form>
             </p>
@@ -102,23 +103,5 @@
     
   </div>
     <script src="resources/js/main.js"></script>
-    
-    <script type="text/javascript">
-      $("input").keypress(function(e){
-          var charCode = !e.charCode ? e.which : e.charCode;
-          if(charCode == 39 || charCode == 34 || charCode == 64)
-              e.preventDefault();
-      })
-      
-      function getMusic() {
-        return $.ajax({
-          type:'POST',
-          url:'/music',
-          async: false
-        })
-          
-        }
-        
-    </script>
   </body>
 </html>
