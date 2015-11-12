@@ -19,6 +19,10 @@ app.listen(process.env.PORT || 8080, function () {
   console.log('listening...');
 });
 
+app.get('/error', function (req, res) {
+  res.sendFile('error.html', { root: path.join(__dirname, '/') });
+});
+
 app.post('/get-title', function(req, res) {
   console.log(req.body);
   var url = req.body.data;
