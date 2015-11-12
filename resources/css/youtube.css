@@ -1,0 +1,27 @@
+.container {
+  max-width: 800px;
+  margin: 5 auto;
+}
+@media screen and (max-width: 600px) {
+  .container {
+      max-width: 400px;
+      margin: 5 auto;
+  }
+  .btn-lg{
+    width:100%;
+  }
+}
+.page-footer
+{
+    position: relative;
+    text-align: center;
+    color: #767676;
+    border-top: 1px solid #e5e5e5;
+    width: 100%;
+}
+footer
+{
+  margin-top:20px;
+}
+
+

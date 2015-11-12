@@ -1,68 +1,100 @@
-<html>
+<!DOCTYPE html>
+<html ng-app="MainApp">
   <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <link rel="shortcut icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Yin_yang.svg/2000px-Yin_yang.svg.png">
     <title>YouTube Mp3</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.css" rel="stylesheet">
+    <link href="resources/bootstrap-3.3.5-dist/css/bootstrap.css" rel="stylesheet">
+    <link href="resources/css/youtube.css" rel="stylesheet">
+    <style>
+      .glyphicon-refresh-animate {
+          -animation: spin .7s infinite linear;
+          -webkit-animation: spin2 .7s infinite linear;
+          margin-left:10px;
+        }
+
+        @-webkit-keyframes spin2 {
+          from { -webkit-transform: rotate(0deg);}
+          to { -webkit-transform: rotate(360deg);}
+        }
+
+        @keyframes spin {
+          from { transform: scale(1) rotate(0deg);}
+          to { transform: scale(1) rotate(360deg);}
+        }
+              
+    </style>
+    <script src="resources/js/jquery.js"></script>
+    <script src="resources/js/bootstrap.min.js"></script>
+    <script src="resources/js/angular.js"></script>
   </head>
-  <body >
-  <style type="text/css">
-    .container {
-      max-width: 800px;
-      margin: 5 auto;
-    }
-    @media screen and (max-width: 600px) {
-      .container {
-          max-width: 400px;
-          margin: 5 auto;
-      }
-      .btn-primary{
-        width:100%;
-      }
-    }
-    .page-footer
-    {
-        position: absolute;
-        bottom: 0;
-        text-align: center;
-        color: #767676;
-        border-top: 1px solid #e5e5e5;
-        width: 100%;
-    }
-    footer
-    {
-      margin-top:20px;
-    }
-  </style>
+  <body ng-controller="MainController">
   <div class="container">
-      <form method="POST" action="/music" >
-        <h3 class="page-header text-center">YouTube Music <span class="glyphicon glyphicon-music"></span></h3>
+      <form name="musicForm" method="POST" ng-submit="handleMusicRequest(musicQuery)">
+        <h2 class="page-header text-center">YouTube Music <span class="glyphicon glyphicon-music"></span></h2>
         <div class="form-group">
-          <label class="label-control">Nombre o URL</label>
-          <input class="form-control" name="name" id="name" placeholder="Ingrese un nombre o URL">
+          <label class="label-control"><h3>Nombre o URL</h3></label>
+          <input ng-model="musicQuery" class="form-control input-lg" name="name" id="name" placeholder="Ingrese un nombre o URL">
         </div>
-        <button type="submit" class="btn btn-lg btn-primary">Descargar</button>
+        <button type="submit" class="btn btn-lg btn-primary" ng-disabled="!canSearchMusic">
+          Buscar
+          <span class="glyphicon glyphicon-search" style="margin-left:10px"></span>
+          </button>
+        <p ng-if="musicRequestLog">
+          <h3 ng-repeat="log in musicRequestLog">
+            {{log.text}}
+            <span ng-if="log.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+          <h3>
+          <div ng-if="audioUrl" style="margin:20px">
+            <div class="text-center">
+              <audio ng-if="audioUrl" ng-src="{{audioUrl}}" controls="true"></audio>
+            </div>
+            <p>
+              <a ng-click="download(audioUrl, name)" class="btn btn-lg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></a>
+            </p>
+          </div>
+          
+        </p>
     </form>
   </div>
   <div class="container" sytle="margin:80px auto;max-width:200px">
-    <form method="POST" action="/video" >
-        <h3 class="page-header text-center"><span class="glyphicon glyphicon-facetime-video" style="right:5px"></span>YouTube Video</h3>
+    <form method="POST" ng-submit="handleVideoRequest(videoQuery)" >
+        <h2 class="page-header text-center"><span class="glyphicon glyphicon-facetime-video" style="right:5px"></span>YouTube Video</h2>
         <div class="form-group">
-          <label class="label-control">Nombre o URL</label>
-          <input class="form-control" name="videoUrl" id="videoUrl" placeholder="Ingrese un nombre o URL">
+          <label class="label-control"><h3>Nombre o URL</h3></label>
+          <input ng-model="videoQuery" class="form-control input-lg" name="videoUrl" id="videoUrl" placeholder="Ingrese un nombre o URL">
         </div>
-        <button type="submit" class="btn btn-lg btn-primary">Descargar</button>
+        <button type="submit" class="btn btn-lg btn-primary" ng-disabled="!canSearchVideo">
+          Buscar
+          <span class="glyphicon glyphicon-search" style="margin-left:10px"></span>
+        </button>
+        <p ng-if="videoRequestLog">
+          <h3 ng-repeat="log in videoRequestLog">
+            {{log.text}}
+            <span ng-if="log.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+          <h3>
+          <div ng-if="videoUrl" style="margin:20px">
+            <div class="embed-responsive embed-responsive-16by9">
+              <iframe class="embed-responsive-item" ng-src="{{videoUrl}}"></iframe>
+            </div>
+            <p>
+              <a ng-click="download(videoUrl, videoName)" class="btn btn-lg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></a>
+            </p>
+          </div>
+          
+        </p>
+
     </form>
   </div>
-    <script src="//code.jquery.com/jquery-2.1.4.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.js"></script>
-    <div class="page-footer" class="page-footer" >
-      <footer>
-        <p>Desarrollado por Luis Alberto Saucedo Quiroga</p>
-        <p>Copyright <span class="glyphicon glyphicon-copyright-mark"></span> 2015</p>
-      </footer>
-      
+  <div class="page-footer" >
+    <div>
+      <p>Desarrollado por Luis Alberto Saucedo Quiroga</p>
+      <p>Copyright <span class="glyphicon glyphicon-copyright-mark"></span> 2015</p>
     </div>
+    
+  </div>
+    <script src="resources/js/main.js"></script>
+    
     <script type="text/javascript">
       $("input").keypress(function(e){
           var charCode = !e.charCode ? e.which : e.charCode;
