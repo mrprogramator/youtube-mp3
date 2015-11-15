@@ -25,7 +25,7 @@ footer
 }
 
 .clearable{
-  background: #fff url(https://nuffield.widget.co.uk/images/cart/icon_x_circle_gray.png) no-repeat right -30px center;
+  background: #fff url(/resources/img/icon_x.png) no-repeat right -30px center;
   transition: background 0.4s;
 }
 .clearable.x  { background-position: right 20px center; padding-right: 45px; } /* (jQ) Show icon */
