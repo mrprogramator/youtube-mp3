@@ -101,8 +101,7 @@ app.controller('MainController', function ($http, $scope, $timeout){
         console.log(promise.data);
         
         var name = promise.data;
-        name = name.substring(0, name.length - 1);
-        name = name.replace(/"/g,"'");
+        name = encodeName(name);
         console.log('name', name);
         
         log.text = promise.data;
@@ -154,9 +153,9 @@ app.controller('MainController', function ($http, $scope, $timeout){
         console.log(promise.data);
         
         var name = promise.data;
-        name = name.replace(/"/g,"'");
+        name = encodeName(name);
+        
         console.log('name', name);
-        name = name.substring(0, name.length - 1);
         
         log.text = promise.data;
         log.loading = false;
@@ -208,5 +207,13 @@ app.controller('MainController', function ($http, $scope, $timeout){
         if (index >= 0) {
             array.splice(index, 1);
         }
+    }
+    
+    function encodeName(name) {
+      name = name.replace(/"/g,"'");
+      name = name.replace(/:/g," -");
+      name = name.replace(/\n/g,"");
+      
+      return name;
     }
 });
