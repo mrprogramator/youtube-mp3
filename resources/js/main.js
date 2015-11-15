@@ -5,6 +5,9 @@ app.controller('MainController', function ($http, $scope, $timeout){
     $scope.canSearchMusic = true;
     $scope.canSearchVideo = true;
     
+    $scope.musicRequestLog = [];
+    $scope.videoRequestLog = [];
+    
     getTitle = function (query) {
       var promise = $http({
         method: 'POST',
@@ -80,71 +83,100 @@ app.controller('MainController', function ($http, $scope, $timeout){
     
     $scope.handleMusicRequest = function (query) {
       
-      $scope.musicRequestLog = [];
-      
       $scope.canSearchMusic = false;
       
-      var log = { text: "Obteniendo el título del audio...", loading: true}
+      var log = { 
+        text: "Obteniendo el título del audio...",
+        loading: true,
+        show: true
+      }
       
-      $scope.musicRequestLog.push(log); 
+      var logArray = [log];
+      
+      $scope.musicRequestLog.unshift(logArray); 
+      
+      
+      console.log('musicRequestLog',$scope.musicRequestLog);
       getTitle(query).then(function (promise){
         console.log(promise.data);
         
-        $scope.name = promise.data;
-        $scope.name = $scope.name.substring(0, $scope.name.length - 1);
+        var name = promise.data;
+        name = name.substring(0, name.length - 1);
         
-        log.text = "Título: " + promise.data;
+        log.text = promise.data;
         log.loading = false;
-        var log2 = { text: "Obteniendo el audio...", loading: true}
-        $scope.musicRequestLog.push(log2); 
-        getMp3(query, $scope.name).then(function (promise) {
+        
+        var log2 = { 
+          text: "Obteniendo el audio...",
+          loading: true,
+          show: true
+        }
+        logArray.push(log2);
+        
+        console.log('musicRequestLog',$scope.musicRequestLog);
+         
+        getMp3(query, name).then(function (promise) {
           console.log(promise.data);
+          logArray.pop();
+          var folderName = promise.data;
           
-          $scope.folderMusicName = promise.data;
+          var log3 =  {
+            folderName: folderName,
+            url :document.origin + "/" + folderName + "/"+ name + ".mp3",
+            show: false
+          };
           
-          $scope.musicRequestLog.pop(); 
+          logArray.push(log3);
           
+          console.log('musicRequestLog',$scope.musicRequestLog);
           
           $scope.canSearchMusic = true;
-          
-          $scope.audioUrl = document.origin + "/" + $scope.folderMusicName + "/"+ $scope.name + ".mp3";
         })
       })
     }
     
     $scope.handleVideoRequest = function (query) {
       
-      $scope.videoRequestLog = [];
-      
       $scope.canSearchVideo = false;
       
-      var log = { text: "Obteniendo el título del video...", loading: true}
+      var log = { 
+        text: "Obteniendo el título del video...",
+        loading: true,
+        show: true
+      }
       
-      $scope.videoRequestLog.push(log); 
+      var logArray = [log];
+      
+      $scope.videoRequestLog.unshift(logArray); 
       getTitle(query).then(function (promise){
         console.log(promise.data);
         
-        $scope.videoName = promise.data;
-        $scope.videoName = $scope.videoName.substring(0, $scope.videoName.length - 1);
+        var name = promise.data;
+        name = name.substring(0, name.length - 1);
         
-        log.text = "Título: " + promise.data;
+        log.text = promise.data;
         log.loading = false;
-        var log2 = { text: "Obteniendo el video...", loading: true}
-        $scope.videoRequestLog.push(log2); 
-        getMp4(query, $scope.videoName).then(function (promise) {
+        
+        var log2 = { 
+          text: "Obteniendo el video...",
+          loading: true,
+          show: true
+        }
+        logArray.push(log2);
+        
+        getMp4(query, name).then(function (promise) {
           console.log(promise.data);
+          logArray.pop();
+          var folderName = promise.data;
           
-          $scope.folderVideoName = promise.data;
+          var log3 =  {
+            folderName: folderName,
+            url :document.origin + "/" + folderName + "/"+ name + ".mp4",
+            show: false
+          };
           
-          $scope.videoRequestLog.pop(); 
-          
-          log2.text = log2.text + " Listo";
-          log2.loading = false;
-          
+          logArray.push(log3);
           $scope.canSearchVideo = true;
-          
-          $scope.videoUrl = document.origin + "/" + $scope.folderVideoName + "/" + $scope.videoName + ".mp4";
-          console.log('VIDEO URL', $scope.videoUrl);
         })
       })
     }
@@ -164,5 +196,12 @@ app.controller('MainController', function ($http, $scope, $timeout){
     
     $scope.fullscreen = function (url) {
       window.open(url, "video", "fullscreen=yes");
+    }
+    
+    $scope.removeItem = function(item, array) {
+        var index = array.indexOf(item);
+        if (index >= 0) {
+            array.splice(index, 1);
+        }
     }
 });

@@ -39,70 +39,61 @@
     })(window,document,'script','dataLayer','GTM-TGCRRV');</script>
     <!-- End Google Tag Manager -->
   <div class="container">
-      <form name="musicForm" method="POST" ng-submit="handleMusicRequest(musicQuery)">
+      <form name="musicForm" method="POST" ng-submit="handleMusicRequest(musicQuery)" style="padding-bottom:20px">
         <h2 class="page-header text-center">YouTube Music <span class="glyphicon glyphicon-music"></span></h2>
         <div class="form-group">
           <label class="label-control"><h3>Nombre o URL</h3></label>
           <input ng-model="musicQuery" class="form-control input-lg" name="name" id="name" placeholder="Ingrese un nombre o URL">
         </div>
-        <button type="submit" class="btn btn-lg btn-primary" ng-disabled="!canSearchMusic">
+        <button type="submit" class="btn btn-lg btn-primary">
           Buscar
           <span class="glyphicon glyphicon-search" style="margin-left:10px"></span>
           </button>
         </form>
           
-        <p ng-if="musicRequestLog">
-          <h3 ng-repeat="log in musicRequestLog">
-            {{log.text}}
-            <span ng-if="log.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
-          <h3>
-          <div ng-if="audioUrl" style="margin:20px">
-            <div class="text-center">
-              <audio ng-if="audioUrl" ng-src="{{audioUrl}}" controls="true"></audio>
+        <div class="well" ng-repeat="logArray in musicRequestLog" style="padding-bottom:40px">
+          <a class="btn btn-link pull-right" ng-click="removeItem(logArray, musicRequestLog)"><span class="glyphicon glyphicon-remove"></span></a>
+          <h3 ng-repeat="log in logArray">
+              {{log.text}}
+              <span ng-if="log.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+            <div ng-if="!log.show && log" class="text-center">
+                <audio ng-if="log.url" ng-src="{{log.url}}" controls="true"></audio>
+                <form method="POST" action="/download">
+                  <input name="name" ng-model="log.folderName" hidden="true"/>
+                  <button type="submit" class="btn btn-lg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></button>
+                </form>
             </div>
-            <p>
-              <form method="POST" action="/download">
-                <input name="name" ng-model="folderMusicName" hidden="true"/>
-                <button type="submit" class="btn btn-lg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></button>
-              </form>
-            </p>
-          </div>
-          
-        </p>
+          </h3>
+        </div>
   </div>
   <div class="container" sytle="margin:80px auto;max-width:200px">
-    <form method="POST" ng-submit="handleVideoRequest(videoQuery)" >
+    <form method="POST" ng-submit="handleVideoRequest(videoQuery)" style="padding-bottom:20px">
         <h2 class="page-header text-center"><span class="glyphicon glyphicon-facetime-video" style="right:5px"></span>YouTube Video</h2>
         <div class="form-group">
           <label class="label-control"><h3>Nombre o URL</h3></label>
           <input ng-model="videoQuery" class="form-control input-lg" name="videoUrl" id="videoUrl" placeholder="Ingrese un nombre o URL">
         </div>
-        <button type="submit" class="btn btn-lg btn-primary" ng-disabled="!canSearchVideo">
+        <button type="submit" class="btn btn-lg btn-primary">
           Buscar
           <span class="glyphicon glyphicon-search" style="margin-left:10px"></span>
         </button>
-         </form>
-        <p ng-if="videoRequestLog">
-          <h3 ng-repeat="log in videoRequestLog">
-            {{log.text}}
-            <span ng-if="log.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
-          <h3>
-          <div ng-if="videoUrl" style="margin:20px">
-            <div class="embed-responsive embed-responsive-16by9">
-              <iframe class="embed-responsive-item" ng-src="{{videoUrl}}"></iframe>
+    </form>
+    <div class="well" ng-repeat="logArray in videoRequestLog" style="padding-bottom:40px">
+          <a class="btn btn-link pull-right" ng-click="removeItem(logArray, videoRequestLog)"><span class="glyphicon glyphicon-remove"></span></a>
+          <h3 ng-repeat="log in logArray">
+              {{log.text}}
+              <span ng-if="log.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+            <div ng-if="!log.show && log" class="text-center">
+                <div class="embed-responsive embed-responsive-16by9">
+                  <iframe class="embed-responsive-item" ng-src="{{log.url}}"></iframe>
+                </div>
+                <form method="POST" action="/download">
+                  <input name="name" ng-model="log.folderName" hidden="true"/>
+                  <button type="submit" class="btn btn-lg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></button>
+                </form>
             </div>
-            <p>
-              <form method="POST" action="/download">
-                <input name="name" ng-model="folderVideoName" hidden="true"/>
-                <a class="btn btn-lg btn-default pull-right" ng-click="fullscreen(videoUrl)">Pantalla Completa<span style="left:10px" class="glyphicon glyphicon-fullscreen"></span></a>
-                <button type="submit" class="btn btn-lg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></button>
-              </form>
-            </p>
-          </div>
-          
-        </p>
-
-   
+          </h3>
+        </div>
   </div>
   <div class="page-footer" >
     <div>
