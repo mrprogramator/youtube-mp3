@@ -43,7 +43,7 @@
         <h2 class="page-header text-center">YouTube Music <span class="glyphicon glyphicon-music"></span></h2>
         <div class="form-group">
           <label class="label-control"><h3>Nombre o URL</h3></label>
-          <input ng-model="musicQuery" class="form-control input-lg" name="name" id="name" placeholder="Ingrese un nombre o URL">
+          <input ng-model="musicQuery" class="form-control input-lg clearable" name="name" id="name" placeholder="Ingrese un nombre o URL" autofocus>
         </div>
         <button type="submit" class="btn btn-lg btn-primary">
           Buscar
@@ -71,14 +71,14 @@
         <h2 class="page-header text-center"><span class="glyphicon glyphicon-facetime-video" style="right:5px"></span>YouTube Video</h2>
         <div class="form-group">
           <label class="label-control"><h3>Nombre o URL</h3></label>
-          <input ng-model="videoQuery" class="form-control input-lg" name="videoUrl" id="videoUrl" placeholder="Ingrese un nombre o URL">
+          <input type="text" ng-model="videoQuery" class="form-control input-lg clearable" name="videoUrl" id="videoUrl" placeholder="Ingrese un nombre o URL">
         </div>
         <button type="submit" class="btn btn-lg btn-primary">
           Buscar
           <span class="glyphicon glyphicon-search" style="margin-left:10px"></span>
         </button>
     </form>
-    <div class="well" ng-repeat="logArray in videoRequestLog" style="padding-bottom:40px">
+    <div class="well" ng-repeat="logArray in videoRequestLog" style="padding-bottom:90px">
           <a class="btn btn-link pull-right" ng-click="removeItem(logArray, videoRequestLog)"><span class="glyphicon glyphicon-remove"></span></a>
           <h3 ng-repeat="log in logArray">
               {{log.text}}
@@ -89,6 +89,7 @@
                 </div>
                 <form method="POST" action="/download">
                   <input name="name" ng-model="log.folderName" hidden="true"/>
+                  <a class="btn btn-lg btn-default pull-right" ng-click="fullscreen(log.url)">Pantalla Completa<span style="left:10px" class="glyphicon glyphicon-resize-full"></span></a>
                   <button type="submit" class="btn btn-lg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></button>
                 </form>
             </div>
@@ -96,12 +97,25 @@
         </div>
   </div>
   <div class="page-footer" >
-    <div>
+    <footer>
       <p>Desarrollado por Luis Alberto Saucedo Quiroga</p>
       <p>Copyright <span class="glyphicon glyphicon-copyright-mark"></span> 2015</p>
-    </div>
+    </footer>
     
   </div>
     <script src="resources/js/main.js"></script>
+    <script>
+      // CLEARABLE INPUT
+      function tog(v){return v?'addClass':'removeClass';} 
+      
+      $(document).on('input', '.clearable', function(){
+          $(this)[tog(this.value)]('x');
+      }).on('mousemove', '.x', function( e ){
+          $(this)[tog(this.offsetWidth-18 < e.clientX-this.getBoundingClientRect().left)]('onX');
+      }).on('touchstart click', '.onX', function( ev ){
+          ev.preventDefault();
+          $(this).removeClass('x onX').val('').change();
+      });
+    </script>
   </body>
 </html>
