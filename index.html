@@ -29,6 +29,15 @@
     <script src="resources/js/angular.js"></script>
   </head>
   <body ng-controller="MainController">
+    <!-- Google Tag Manager -->
+    <noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-TGCRRV"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-TGCRRV');</script>
+    <!-- End Google Tag Manager -->
   <div class="container">
       <form name="musicForm" method="POST" ng-submit="handleMusicRequest(musicQuery)">
         <h2 class="page-header text-center">YouTube Music <span class="glyphicon glyphicon-music"></span></h2>
@@ -53,7 +62,7 @@
             </div>
             <p>
               <form method="POST" action="/download">
-                <input name="name" ng-model="name" hidden="true"/>
+                <input name="name" ng-model="folderMusicName" hidden="true"/>
                 <button type="submit" class="btn btn-lg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></button>
               </form>
             </p>
@@ -84,7 +93,7 @@
             </div>
             <p>
               <form method="POST" action="/download">
-                <input name="name" ng-model="videoName" hidden="true"/>
+                <input name="name" ng-model="folderVideoName" hidden="true"/>
                 <a class="btn btn-lg btn-default pull-right" ng-click="fullscreen(videoUrl)">Pantalla Completa<span style="left:10px" class="glyphicon glyphicon-fullscreen"></span></a>
                 <button type="submit" class="btn btn-lg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></button>
               </form>

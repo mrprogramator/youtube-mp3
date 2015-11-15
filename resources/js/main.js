@@ -99,14 +99,15 @@ app.controller('MainController', function ($http, $scope, $timeout){
         $scope.musicRequestLog.push(log2); 
         getMp3(query, $scope.name).then(function (promise) {
           console.log(promise.data);
-        $scope.musicRequestLog.pop(); 
           
-          log2.text = log2.text + " Listo";
-          log2.loading = false;
+          $scope.folderMusicName = promise.data;
+          
+          $scope.musicRequestLog.pop(); 
+          
           
           $scope.canSearchMusic = true;
           
-          $scope.audioUrl = document.origin + "/" + $scope.name + ".mp3";
+          $scope.audioUrl = document.origin + "/" + $scope.folderMusicName + "/"+ $scope.name + ".mp3";
         })
       })
     }
@@ -132,14 +133,17 @@ app.controller('MainController', function ($http, $scope, $timeout){
         $scope.videoRequestLog.push(log2); 
         getMp4(query, $scope.videoName).then(function (promise) {
           console.log(promise.data);
-        $scope.videoRequestLog.pop(); 
+          
+          $scope.folderVideoName = promise.data;
+          
+          $scope.videoRequestLog.pop(); 
           
           log2.text = log2.text + " Listo";
           log2.loading = false;
           
           $scope.canSearchVideo = true;
           
-          $scope.videoUrl = document.origin + "/" + $scope.videoName + ".mp4";
+          $scope.videoUrl = document.origin + "/" + $scope.folderVideoName + "/" + $scope.videoName + ".mp4";
           console.log('VIDEO URL', $scope.videoUrl);
         })
       })
