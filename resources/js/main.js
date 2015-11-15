@@ -102,6 +102,8 @@ app.controller('MainController', function ($http, $scope, $timeout){
         
         var name = promise.data;
         name = name.substring(0, name.length - 1);
+        name = name.replace(/"/g,"'");
+        console.log('name', name);
         
         log.text = promise.data;
         log.loading = false;
@@ -152,6 +154,8 @@ app.controller('MainController', function ($http, $scope, $timeout){
         console.log(promise.data);
         
         var name = promise.data;
+        name = name.replace(/"/g,"'");
+        console.log('name', name);
         name = name.substring(0, name.length - 1);
         
         log.text = promise.data;
@@ -174,6 +178,7 @@ app.controller('MainController', function ($http, $scope, $timeout){
             url :document.origin + "/" + folderName + "/"+ name + ".mp4",
             show: false
           };
+          console.log('url', log3.url);
           
           logArray.push(log3);
           $scope.canSearchVideo = true;
