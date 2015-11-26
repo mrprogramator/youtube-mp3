@@ -24,11 +24,11 @@ app.controller('MainController', function ($http, $scope, $timeout){
       return promise;
     }
     
-    getMp3 = function (url, name) {
+    getMp3 = function (url, name, folderName) {
       var promise = $http({
         method: 'POST',
         url: '/get-mp3',
-        data: {url: url, name: name}
+        data: {url: url, name: name, folderName: folderName}
       })
       .success(function (data, status, headers, config) {
           return data;
@@ -40,11 +40,11 @@ app.controller('MainController', function ($http, $scope, $timeout){
       return promise;
     }
     
-    getMp4 = function (url, name) {
+    getMp4 = function (url, name, folderName) {
       var promise = $http({
         method: 'POST',
         url: '/get-mp4',
-        data: {url: url, name: name}
+        data: {url: url, name: name, folderName: folderName}
       })
       .success(function (data, status, headers, config) {
           return data;
@@ -115,15 +115,15 @@ app.controller('MainController', function ($http, $scope, $timeout){
         logArray.push(log2);
         
         console.log('musicRequestLog',$scope.musicRequestLog);
-         
-        getMp3(query, name).then(function (promise) {
+        
+        getMp3(query, name, getFolderName() ).then(function (promise) {
           console.log(promise.data);
           logArray.pop();
-          var folderName = promise.data;
+          folderName = promise.data;
           
           var log3 =  {
             folderName: folderName,
-            url :document.origin + "/" + folderName + "/"+ name + ".mp3",
+            url :document.origin + "/" + folderName,
             show: false
           };
           
@@ -167,14 +167,14 @@ app.controller('MainController', function ($http, $scope, $timeout){
         }
         logArray.push(log2);
         
-        getMp4(query, name).then(function (promise) {
+        getMp4(query, name, getFolderName()).then(function (promise) {
           console.log(promise.data);
           logArray.pop();
           var folderName = promise.data;
           
           var log3 =  {
             folderName: folderName,
-            url :document.origin + "/" + folderName + "/"+ name + ".mp4",
+            url :document.origin + "/" + folderName,
             show: false
           };
           console.log('url', log3.url);
@@ -207,6 +207,14 @@ app.controller('MainController', function ($http, $scope, $timeout){
         if (index >= 0) {
             array.splice(index, 1);
         }
+    }
+    
+    function getFolderName() {
+      var random = Math.random()*1000000000 + 1;
+  
+      var clientIP = random.toString().split('.')[0];
+      
+      return clientIP + '_' + Date.now();
     }
     
     function encodeName(name) {

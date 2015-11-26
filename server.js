@@ -46,12 +46,8 @@ app.post('/get-mp3', function(req, res) {
   
   var url = req.body.url;
   var name = req.body.name;
+  var folderName = req.body.folderName;
   
-  var random = Math.random()*1000000000 + 1;
-  
-  var clientIP = random.toString().split('.')[0];
-  
-  var folderName = clientIP + '_' + Date.now();
   
   fs.mkdir(folderName, function () {
     var process = child_process.spawn("./youtube-dl",['--ffmpeg-location','./ffmpeg','-o',folderName + "/%(title)s.%(ext)s",'--extract-audio','--audio-format','mp3','--default-search','ytsearch', url])
@@ -66,7 +62,21 @@ app.post('/get-mp3', function(req, res) {
     
     process.on('exit', function (code, data) {
       console.log('process exit with code ' + code,data);
-      res.send(folderName);
+      glob(folderName + "/*", function (err, files) {
+        if(files == 0) {
+          console.log('No se encuentra el archivo ' + name);
+          res.send('No se encuentra el archivo');
+        }
+        
+        var file = files[0];
+        
+        console.log('FILENAME', file);
+        res.send(file);
+        
+        res.on('finish', function () {
+          console.log('F I N I S H E D');
+        });
+      })
     });
   });
   
@@ -79,12 +89,7 @@ app.post('/get-mp4', function(req, res) {
   
   var url = req.body.url;
   var name = req.body.name;
-  
-  var random = Math.random()*1000000000 + 1;
-  
-  var clientIP = random.toString().split('.')[0];
-  
-  var folderName = clientIP + '_' + Date.now();
+  var folderName = req.body.folderName;
   
   fs.mkdir(folderName, function () {
     var process = child_process.spawn("./youtube-dl",['--ffmpeg-location','./ffmpeg','-o', folderName + "/%(title)s.%(ext)s",'--format','mp4','--default-search','ytsearch', url])
@@ -99,7 +104,22 @@ app.post('/get-mp4', function(req, res) {
     
     process.on('exit', function (code, data) {
       console.log('process exit with code ' + code,data);
-      res.send(folderName);
+      
+      glob(folderName + "/*", function (err, files) {
+        if(files == 0) {
+          console.log('No se encuentra el archivo ' + name);
+          res.send('No se encuentra el archivo');
+        }
+        
+        var file = files[0];
+        
+        console.log('FILENAME', file);
+        res.send(file);
+        
+        res.on('finish', function () {
+          console.log('F I N I S H E D');
+        });
+      })
     });
     
   });
@@ -115,13 +135,15 @@ app.post('/download', function(req, res) {
 
   var name = req.body.name;
   
-    glob(name + "/*", function (err, files) {
+    glob(name, function (err, files) {
       if(files == 0) {
         console.log('No se encuentra el archivo ' + name);
         res.send(false);
       }
       
       var file = files[0];
+      
+      console.log('FILENAME', file);
       res.download(file);
       
       res.on('finish', function () {
