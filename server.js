@@ -135,7 +135,7 @@ app.post('/download', function(req, res) {
 
   var name = req.body.name;
   
-    glob(name, function (err, files) {
+    glob(name + "/*", function (err, files) {
       if(files == 0) {
         console.log('No se encuentra el archivo ' + name);
         res.send(false);

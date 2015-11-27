@@ -115,14 +115,15 @@ app.controller('MainController', function ($http, $scope, $timeout){
         logArray.push(log2);
         
         console.log('musicRequestLog',$scope.musicRequestLog);
-        
-        getMp3(query, name, getFolderName() ).then(function (promise) {
+        var folder = getFolderName();
+        getMp3(query, name, folder).then(function (promise) {
           console.log(promise.data);
           logArray.pop();
           folderName = promise.data;
           
           var log3 =  {
             folderName: folderName,
+            folder: folder,
             url :document.origin + "/" + folderName,
             show: false
           };
@@ -167,13 +168,16 @@ app.controller('MainController', function ($http, $scope, $timeout){
         }
         logArray.push(log2);
         
-        getMp4(query, name, getFolderName()).then(function (promise) {
+        var folder = getFolderName();
+        
+        getMp4(query, name, folder).then(function (promise) {
           console.log(promise.data);
           logArray.pop();
           var folderName = promise.data;
           
           var log3 =  {
             folderName: folderName,
+            folder: folder,
             url :document.origin + "/" + folderName,
             show: false
           };
