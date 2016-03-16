@@ -1,6 +1,6 @@
 var app = angular.module('MainApp', []);
 
-app.controller('MainController', function ($http, $scope, $timeout){
+app.controller('MainController', function ($http, $scope, $timeout, $compile){
     
     $scope.canSearchMusic = true;
     $scope.canSearchVideo = true;
@@ -93,7 +93,7 @@ app.controller('MainController', function ($http, $scope, $timeout){
       
       var logArray = [log];
       
-      $scope.musicRequestLog.unshift(logArray); 
+      $scope.musicRequestLog.push(logArray); 
       
       
       console.log('musicRequestLog',$scope.musicRequestLog);
@@ -118,6 +118,10 @@ app.controller('MainController', function ($http, $scope, $timeout){
         var folder = getFolderName();
         getMp3(query, name, folder).then(function (promise) {
           console.log(promise.data);
+          
+          
+          $scope.musicIsLoaded = true;
+          
           logArray.pop();
           folderName = promise.data;
           
@@ -132,10 +136,15 @@ app.controller('MainController', function ($http, $scope, $timeout){
           
           console.log('musicRequestLog',$scope.musicRequestLog);
           
+          if ($('#player')[0].src === "") {
+            $scope.playTrack($scope.musicRequestLog.indexOf(logArray));
+          }
+          
           $scope.canSearchMusic = true;
         })
       })
     }
+    
     
     $scope.handleVideoRequest = function (query) {
       
@@ -228,4 +237,59 @@ app.controller('MainController', function ($http, $scope, $timeout){
       
       return name;
     }
+    
+    
+    $scope.playTrack = function (id) {
+      
+      $scope.index = id;
+      
+      var nextTrack = $scope.musicRequestLog[$scope.index];
+      
+      if (nextTrack !== undefined){
+        $('#npTitle').text(nextTrack[0].text);
+        $('#player')[0].src = nextTrack[nextTrack.length - 1].url;
+        $('.alert.alert-info').addClass('well');
+        $('.alert.alert-info').removeClass('alert alert-info');
+        $('.well')[$scope.index].id = $scope.index;
+        $('#' + $scope.index).removeClass('well');
+        $('#' + $scope.index).addClass('alert alert-info');
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+    
+    
+    $scope.next = function (){
+      next();
+    }
+    
+    $scope.previous = function (){
+      previous();
+    }
+    
+    next = function()
+    {
+      if (!$scope.playTrack($scope.index + 1)){
+        $scope.playTrack(0);
+      }
+    }
+    
+    previous = function(compile)
+    {
+      if (!$scope.playTrack($scope.index - 1)){
+        $scope.playTrack($scope.musicRequestLog.length -1);
+      }
+    }
+    
+    $('#player').bind('play', function() {
+                      playing = true;
+                      console.log('now playing');
+                  }).bind('pause', function() {
+                      playing = false;
+                      console.log('Paused:');
+                  }).bind('ended', function() {
+                      next();
+                  })
 });

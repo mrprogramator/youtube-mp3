@@ -10,7 +10,6 @@
       .glyphicon-refresh-animate {
           -animation: spin .7s infinite linear;
           -webkit-animation: spin2 .7s infinite linear;
-          margin-left:10px;
         }
 
         @-webkit-keyframes spin2 {
@@ -38,29 +37,39 @@
         ga('create', 'UA-70149906-1', 'auto');
         ga('send', 'pageview');
     </script>
-  <div class="container">
+  <div id="mainContent" class="container">
       <form name="musicForm" method="POST" ng-submit="handleMusicRequest(musicQuery)" style="padding-bottom:20px">
         <h2 class="page-header text-center">YouTube Music <span class="glyphicon glyphicon-music"></span></h2>
         <div class="form-group">
           <label class="label-control"><h3>Nombre o URL</h3></label>
           <input ng-model="musicQuery" class="form-control input-lg clearable" name="name" id="name" placeholder="Ingrese un nombre o URL" autofocus>
         </div>
-        <button type="submit" class="btn btn-lg btn-primary">
-          Buscar
-          <span class="glyphicon glyphicon-search" style="margin-left:10px"></span>
+        <div class="text-right">
+          <button type="submit" class="btn btn-lg btn-lgg btn-primary">
+            <span class="glyphicon glyphicon-search" style="margin-left:10px"></span>
+            Buscar
           </button>
+        </div>
         </form>
+        <div class="row text-center" ng-show="musicIsLoaded">
+          <div id="npTitle"></div>
+          <audio id="player" autoplay controls></audio>
+          <div class="container" style="padding-bottom:10px">
+            <a class="btn btn-lg btn-default col-xs-6" ng-click="previous()"><span class="glyphicon glyphicon-backward"></span> </a>
+            <a class="btn btn-lg btn-default col-xs-6" ng-click="next()"><span class="glyphicon glyphicon-forward"></span> </a>
+          </div>
           
-        <div class="well" ng-repeat="logArray in musicRequestLog" style="padding-bottom:40px">
+        </div>
+        <div ng-click="playTrack(musicRequestLog.indexOf(logArray))" class="well" ng-repeat="logArray in musicRequestLog" style="cursor:pointer">
           <a class="btn btn-link pull-right" ng-click="removeItem(logArray, musicRequestLog)"><span class="glyphicon glyphicon-remove"></span></a>
           <h3 ng-repeat="log in logArray">
               {{log.text}}
               <span ng-if="log.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
             <div ng-if="!log.show && log" class="text-center">
-                <audio ng-if="log.url" ng-src="{{log.url}}" controls="true"></audio>
-                <form method="POST" action="/download">
+                <!--audio ng-if="log.url" ng-src="{{log.url}}" controls="true"></audio-->
+                <form method="POST" action="/download" class="text-right">
                   <input name="name" ng-model="log.folder" hidden="true"/>
-                  <button type="submit" class="btn btn-lg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></button>
+                  <button type="submit" class="btn btn-lg btn-lgg btn-default">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></button>
                 </form>
             </div>
           </h3>
@@ -73,10 +82,12 @@
           <label class="label-control"><h3>Nombre o URL</h3></label>
           <input type="text" ng-model="videoQuery" class="form-control input-lg clearable" name="videoUrl" id="videoUrl" placeholder="Ingrese un nombre o URL">
         </div>
-        <button type="submit" class="btn btn-lg btn-primary">
-          Buscar
-          <span class="glyphicon glyphicon-search" style="margin-left:10px"></span>
-        </button>
+        <div class="text-right">
+          <button type="submit" class="btn btn-lg btn-lgg btn-primary">
+            <span class="glyphicon glyphicon-search" style="margin-left:10px"></span>
+            Buscar
+          </button>
+        </div>
     </form>
     <div class="well" ng-repeat="logArray in videoRequestLog" style="padding-bottom:90px">
           <a class="btn btn-link pull-right" ng-click="removeItem(logArray, videoRequestLog)"><span class="glyphicon glyphicon-remove"></span></a>
@@ -90,7 +101,7 @@
                 <form method="POST" action="/download">
                   <input name="name" ng-model="log.folder" hidden="true"/>
                   <a class="btn btn-lg btn-default pull-right" ng-click="fullscreen(log.url)">Pantalla Completa<span style="left:10px" class="glyphicon glyphicon-resize-full"></span></a>
-                  <button type="submit" class="btn btn-lg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></button>
+                  <button type="submit" class="btn btn-lg btn-lgg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></button>
                 </form>
             </div>
           </h3>
@@ -99,7 +110,7 @@
   <div class="page-footer" >
     <footer>
       <p>Desarrollado por Luis Alberto Saucedo Quiroga</p>
-      <p>Copyright <span class="glyphicon glyphicon-copyright-mark"></span> 2015</p>
+      <p>Copyleft <span class="glyphicon glyphicon-copyright-mark"></span> 2016</p>
     </footer>
     
   </div>
@@ -116,6 +127,14 @@
           ev.preventDefault();
           $(this).removeClass('x onX').val('').change();
       });
+      
+      
+      function audioLoaded(comp) {
+        console.log('audio loaded', comp);
+      }
+      
+      
+
     </script>
   </body>
 </html>
