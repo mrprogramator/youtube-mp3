@@ -15,9 +15,11 @@ app.use(bodyParser.text());
 
 app.use(express.static(__dirname + ''));
 
-app.listen(process.env.PORT || 8080, function () {
-  console.log('listening...');
+var server = app.listen(process.env.PORT || 8080, function () {
+  console.log('listening on PORT:',server.address().port,'...');
 });
+
+server.timeout = 300000;
 
 app.get('/error', function (req, res) {
   res.sendFile('error.html', { root: path.join(__dirname, '/') });
