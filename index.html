@@ -60,10 +60,10 @@
           </div>
           
         </div>
-        <div ng-click="playTrack(musicRequestLog.indexOf(logArray))" class="well" ng-repeat="logArray in musicRequestLog" style="cursor:pointer">
+        <div class="well" ng-repeat="logArray in musicRequestLog">
           <a class="btn btn-link pull-right" ng-click="removeItem(logArray, musicRequestLog)"><span class="glyphicon glyphicon-remove"></span></a>
           <h3 ng-repeat="log in logArray">
-              {{log.text}}
+              <x ng-click="playTrack(musicRequestLog.indexOf(logArray))" style="cursor:pointer">{{log.text}}</x>
               <span ng-if="log.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
             <div ng-if="!log.show && log" class="text-center">
                 <!--audio ng-if="log.url" ng-src="{{log.url}}" controls="true"></audio-->
@@ -89,18 +89,18 @@
           </button>
         </div>
     </form>
-    <div class="well" ng-repeat="logArray in videoRequestLog" style="padding-bottom:90px">
+    <div class="well" ng-repeat="logArray in videoRequestLog">
           <a class="btn btn-link pull-right" ng-click="removeItem(logArray, videoRequestLog)"><span class="glyphicon glyphicon-remove"></span></a>
           <h3 ng-repeat="log in logArray">
               {{log.text}}
               <span ng-if="log.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
-            <div ng-if="!log.show && log" class="text-center">
+            <div ng-if="!log.show && log" class="row text-center">
                 <div class="embed-responsive embed-responsive-16by9">
                   <iframe class="embed-responsive-item" ng-src="{{log.url}}"></iframe>
                 </div>
                 <form method="POST" action="/download">
                   <input name="name" ng-model="log.folder" hidden="true"/>
-                  <a class="btn btn-lg btn-default pull-right" ng-click="fullscreen(log.url)">Pantalla Completa<span style="left:10px" class="glyphicon glyphicon-resize-full"></span></a>
+                  <a class="btn btn-lg btn-lgg btn-default pull-right" ng-click="fullscreen(log.url)">Pantalla Completa<span style="left:10px" class="glyphicon glyphicon-resize-full"></span></a>
                   <button type="submit" class="btn btn-lg btn-lgg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></button>
                 </form>
             </div>
@@ -110,7 +110,9 @@
   <div class="page-footer" >
     <footer>
       <p>Desarrollado por Luis Alberto Saucedo Quiroga</p>
-      <p>Copyleft <span class="glyphicon glyphicon-copyright-mark"></span> 2016</p>
+      <p><strong>Email:</strong>luisaucedoquiroga@gmail.com</p>
+      <p><strong>Tel:</strong>(+591) 78545415</p>
+      <p>Copyleft <span class="glyphicon glyphicon-copyright-mark"></span> Santa Cruz, Bolivia 2016</p>
     </footer>
     
   </div>
