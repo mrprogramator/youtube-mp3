@@ -44,6 +44,25 @@ app.get('/upgrade', function (req, res) {
     })
 });
 
+app.get('/version', function (req, res) {
+    var process = child_process.spawn("./youtube-dl",['--version']);
+
+    var logProccess = "";
+    process.stdout.on('data', function (data) {
+        console.log('stdout: ' + data);
+        logProccess += data.toString();
+        
+    });
+
+    process.stderr.on('data', function (data) {
+        console.log('stderr: ' + data);
+    });
+    
+    process.on('exit', function () {
+        res.send(logProccess);
+    })
+});
+
 app.post('/get-title', function(req, res) {
     console.log(req.body);
     var url = req.body.data;
@@ -60,6 +79,7 @@ app.post('/get-title', function(req, res) {
 
     process.stderr.on('data', function (data) {
         console.log('stderr: ' + data);
+        res.send('Error interno!');
     });
 });
 
@@ -83,6 +103,7 @@ app.post('/get-mp3', function(req, res) {
 
         process.stderr.on('data', function (data) {
           console.log('stderr: ' + data);
+          res.send('Error interno!');
         });
 
         process.on('exit', function (code, data) {
@@ -125,6 +146,7 @@ app.post('/get-mp4', function(req, res) {
 
         process.stderr.on('data', function (data) {
             console.log('stderr: ' + data);
+              res.send('Error interno!');
         });
 
         process.on('exit', function (code, data) {
