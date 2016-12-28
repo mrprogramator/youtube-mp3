@@ -5,7 +5,7 @@
   "private": true,
   "engines": {
     "node": "6.6.0"
-  }
+  },
   "dependencies": {
     "express": "*",
     "body-parser": "*",
