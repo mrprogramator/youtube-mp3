@@ -2,7 +2,10 @@
   "name": "youtuber-dl",
   "description": "N/A",
   "version": "0.0.1",
-  "private": true,
+  "engines": {
+	"node" : "7.6.0",
+	"npm" : "4.3.0"
+  },
   "dependencies": {
     "express": "*",
     "body-parser": "*",
