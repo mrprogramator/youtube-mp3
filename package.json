@@ -3,9 +3,6 @@
   "description": "N/A",
   "version": "0.0.1",
   "private": true,
-  "engines": {
-    "node": "6.6.0"
-  },
   "dependencies": {
     "express": "*",
     "body-parser": "*",
