@@ -1,143 +1,330 @@
 <!DOCTYPE html>
-<html ng-app="MainApp">
-  <head>
-  <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <link rel="shortcut icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Yin_yang.svg/2000px-Yin_yang.svg.png">
-    <title>YouTube Mp3</title>
-    <link href="resources/bootstrap-3.3.5-dist/css/bootstrap.css" rel="stylesheet">
-    <link href="resources/css/youtube.css" rel="stylesheet">
-    <style>
-      .glyphicon-refresh-animate {
-          -animation: spin .7s infinite linear;
-          -webkit-animation: spin2 .7s infinite linear;
-        }
+<html>
+    <head>
+        <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <title>COCO</title>
+        <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+        <style>
+            .coco-body
+            {
+                margin:0px;
+                font-family: 'Roboto', sans-serif;
+                color:#333;
+            }
+            .coco-navbar
+            {
+                background:#00281f;
+                color:white;
+                font-weight: bold;
+                font-size:2em;
+                text-align:center;
+                padding-top:0.3em;
+                padding-bottom:0.2em;
+                box-shadow: 0px 0px 1px 3px #bea42e;
+            }
+            .coco-workarea
+            {
+                padding-top:10px;
+                overflow-y:scroll;
+                overflow-x:hidden;
+            }
+            .coco-form-group
+            {
+                padding:7px;
+            }
 
-        @-webkit-keyframes spin2 {
-          from { -webkit-transform: rotate(0deg);}
-          to { -webkit-transform: rotate(360deg);}
-        }
+            .coco-input
+            {
+                width:100%;
+                font-size:1.3em;
+                border-top:none;
+                border-right:none;
+                border-left:none;
+            }
+            .coco-input:focus
+            {
+                outline:none;
+                border-color:#7b895b;
+            }
+            .coco-btn-primary
+            {
+                width:100%;
+                font-weight: bold;
+                color:white;
+                background: #037367;
+                font-size:1.3em;
+                padding:7px;
+                border:1px solid #7b895b;
+            }
+            .coco-btn-primary:active
+            {
+                border-color:#bea42e;
+            }
 
-        @keyframes spin {
-          from { transform: scale(1) rotate(0deg);}
-          to { transform: scale(1) rotate(360deg);}
-        }
-              
-    </style>
-    <script src="resources/js/jquery.js"></script>
-    <script src="resources/js/bootstrap.min.js"></script>
-    <script src="resources/js/angular.js"></script>
-  </head>
-  <body ng-controller="MainController">
-    <script>
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+            .coco-search-results
+            {
+                padding:10px;
+            }
 
-        ga('create', 'UA-70149906-1', 'auto');
-        ga('send', 'pageview');
-    </script>
-  <div id="mainContent" class="container">
-      <form name="musicForm" method="POST" ng-submit="handleMusicRequest(musicQuery)" style="padding-bottom:20px">
-        <h2 class="page-header text-center">YouTube Music <span class="glyphicon glyphicon-music"></span></h2>
-        <div class="form-group">
-          <label class="label-control"><h3>Nombre o URL</h3></label>
-          <input ng-model="musicQuery" class="form-control input-lg clearable" name="name" id="name" placeholder="Ingrese un nombre o URL" autofocus>
+            .coco-modal
+            {
+                position:absolute;
+                top:0;
+                background:rgba(0, 0, 0, 0.39);
+                width:100%;
+                height: 100%;
+            }
+
+            input:-webkit-autofill {
+                -webkit-box-shadow: 0 0 0px 1000px white inset;
+            }
+        </style>
+    </head>
+    <body class="coco-body">
+        <div id="main-navbar" class="coco-navbar">
+            COCO
         </div>
-        <div class="text-right">
-          <button type="submit" class="btn btn-lg btn-lgg btn-primary">
-            <span class="glyphicon glyphicon-search" style="margin-left:10px"></span>
-            Buscar
-          </button>
-        </div>
-        </form>
-        <div class="row text-center" ng-show="musicIsLoaded">
-          <div id="npTitle"></div>
-          <audio id="player" autoplay controls></audio>
-          <div class="container" style="padding-bottom:10px">
-            <a class="btn btn-lg btn-default col-xs-6" ng-click="previous()"><span class="glyphicon glyphicon-backward"></span> </a>
-            <a class="btn btn-lg btn-default col-xs-6" ng-click="next()"><span class="glyphicon glyphicon-forward"></span> </a>
-          </div>
-          
-        </div>
-        <div class="well" ng-repeat="logArray in musicRequestLog">
-          <a class="btn btn-link pull-right" ng-click="removeItem(logArray, musicRequestLog)"><span class="glyphicon glyphicon-remove"></span></a>
-          <h3 ng-repeat="log in logArray">
-              <x ng-click="playTrack(musicRequestLog.indexOf(logArray))" style="cursor:pointer">{{log.text}}</x>
-              <span ng-if="log.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
-            <div ng-if="!log.show && log" class="text-center">
-                <!--audio ng-if="log.url" ng-src="{{log.url}}" controls="true"></audio-->
-                <form method="POST" action="/download" class="text-right">
-                  <input name="name" ng-model="log.folder" hidden="true"/>
-                  <button type="submit" class="btn btn-lg btn-lgg btn-default">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></button>
-                </form>
-            </div>
-          </h3>
-        </div>
-  </div>
-  <div class="container" sytle="margin:80px auto;max-width:200px">
-    <form method="POST" ng-submit="handleVideoRequest(videoQuery)" style="padding-bottom:20px">
-        <h2 class="page-header text-center"><span class="glyphicon glyphicon-facetime-video" style="right:5px"></span>YouTube Video</h2>
-        <div class="form-group">
-          <label class="label-control"><h3>Nombre o URL</h3></label>
-          <input type="text" ng-model="videoQuery" class="form-control input-lg clearable" name="videoUrl" id="videoUrl" placeholder="Ingrese un nombre o URL">
-        </div>
-        <div class="text-right">
-          <button type="submit" class="btn btn-lg btn-lgg btn-primary">
-            <span class="glyphicon glyphicon-search" style="margin-left:10px"></span>
-            Buscar
-          </button>
-        </div>
-    </form>
-    <div class="well" ng-repeat="logArray in videoRequestLog">
-          <a class="btn btn-link pull-right" ng-click="removeItem(logArray, videoRequestLog)"><span class="glyphicon glyphicon-remove"></span></a>
-          <h3 ng-repeat="log in logArray">
-              {{log.text}}
-              <span ng-if="log.loading" class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
-            <div ng-if="!log.show && log" class="row text-center">
-                <div class="embed-responsive embed-responsive-16by9">
-                  <iframe class="embed-responsive-item" ng-src="{{log.url}}"></iframe>
+        <div id="work-area" class="coco-workarea">
+            <form type="post" onsubmit="return search()">
+                <div class="coco-form-group">
+                    <input id="search-input" placeholder="Nombre o URL" class="coco-input" autofocus/>
                 </div>
-                <form method="POST" action="/download">
-                  <input name="name" ng-model="log.folder" hidden="true"/>
-                  <a class="btn btn-lg btn-lgg btn-default pull-right" ng-click="fullscreen(log.url)">Pantalla Completa<span style="left:10px" class="glyphicon glyphicon-resize-full"></span></a>
-                  <button type="submit" class="btn btn-lg btn-lgg btn-default pull-right">Descargar<span style="left:10px" class="glyphicon glyphicon-download"></span></button>
-                </form>
-            </div>
-          </h3>
-        </div>
-  </div>
-  <div class="page-footer" >
-    <footer>
-      <p>Desarrollado por Luis Alberto Saucedo Quiroga</p>
-      <p><strong>Email:</strong>luisaucedoquiroga@gmail.com</p>
-      <p><strong>Tel:</strong>(+591) 78545415</p>
-      <p>Copyleft <span class="glyphicon 
-glyphicon-copyright-mark"></span> Santa Cruz, Bolivia 2017</p>
-    </footer>
-    
-  </div>
-    <script src="resources/js/main.js"></script>
-    <script>
-      // CLEARABLE INPUT
-      function tog(v){return v?'addClass':'removeClass';} 
-      
-      $(document).on('input', '.clearable', function(){
-          $(this)[tog(this.value)]('x');
-      }).on('mousemove', '.x', function( e ){
-          $(this)[tog(this.offsetWidth-38 < e.clientX-this.getBoundingClientRect().left)]('onX');
-      }).on('touchstart click', '.onX', function( ev ){
-          ev.preventDefault();
-          $(this).removeClass('x onX').val('').change();
-      });
-      
-      
-      function audioLoaded(comp) {
-        console.log('audio loaded', comp);
-      }
-      
-      
+                <div class="coco-form-group">
+                    <button type="submit" class="coco-btn-primary">BUSCAR</button>
+                </div>
+                <div id="search-results" class="coco-search-results">
 
-    </script>
-  </body>
+                </div>
+            </form>
+        </div>
+        <div id="options-modal" class="coco-modal" style="display:none">
+            <table style="width:100%;height:100%;font-size: 1.3em">
+                <tr>
+                    <td style="height: 100%;vertical-align: middle">
+                        <div style="background:white;border-radius: 4px; border:1px solid #7b895b">
+                            <div id="options-title" style="padding:7px;text-align:center;background:#037367;color:white;font-weight:bold">
+                            </div>
+                            <div id="get-mp3-btn" style="padding:7px;text-align: center;border-bottom:1px solid lightgray">
+                                Obtener MP3
+                            </div>
+                            <div id="get-video-btn" style="padding:7px;text-align: center;border-bottom:1px solid lightgray">
+                                Obtener v&iacute;deo
+                            </div>
+                            <div onclick="hideOptions()" style="padding:7px;text-align: center;background:#eee;border:lightgray">
+                                Cancelar
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <script src="/node_modules/socket.io-client/dist/socket.io.js"></script>
+        
+        <script>
+            var navbar = document.getElementById('main-navbar');
+            var workArea = document.getElementById('work-area');
+            var inputSearch = document.getElementById('search-input');
+            var searchResults = document.getElementById('search-results');
+            var optionsModal = document.getElementById('options-modal');
+            var optionsTitle = document.getElementById('options-title');
+            
+            var getMP3Btn = document.getElementById('get-mp3-btn');
+            var getVideoBtn = document.getElementById('get-video-btn');
+            
+            
+            var socket = io('/');
+            var socketId = "";
+            
+            socket.on('connect', function (){
+                socketId = socket.io.engine.id;
+            });
+
+            function fixLayout(){
+                workArea.style.height = (window.innerHeight - navbar.offsetHeight - 20) + 'px';
+            }
+
+            window.onload = fixLayout;
+            window.onresize = fixLayout;
+
+            function makeHTTPRequest(url, method, onSuccess, onError){
+                try
+                {
+                    var request = new XMLHttpRequest();
+
+                    request.open(method,url, true);
+
+                    request.onreadystatechange = function (){
+                        if (request.readyState == XMLHttpRequest.DONE) {
+                            onSuccess(request.responseText);
+                        }
+                    };
+
+                    request.onerror = onError;
+
+                    request.send();
+                }
+                catch(exception)
+                {
+                    onError(exception);
+                }
+            }
+
+            function showOptions(videoId, title){
+                optionsTitle.innerHTML = title;
+
+                getMP3Btn.onclick = function () {
+                    getMP3(videoId);
+                }
+
+                getVideoBtn.onclick = function () {
+                    getVideo(videoId);
+                }
+
+                optionsModal.style.display = "";
+            }
+
+            function hideOptions(){
+                optionsModal.style.display = "none";
+            }
+
+            function getMP3(videoId){
+                hideOptions();
+
+                var resultsDiv = document.getElementById(videoId + '-results');
+                var folderName = buildFolderName();
+
+                resultsDiv.innerHTML = "Obteniendo audio...";
+                
+                makeHTTPRequest('/get-mp3?videoId=' + videoId + '&folderName=' + folderName + '&socketId=' + socketId, 'POST', function (response){
+                    resultsDiv.innerHTML ="Descargando en el servidor...";
+                }, function (error){
+                    resultsDiv.innerHTML = "<strong>ERROR:</strong> " + error;
+                })
+
+                socket.on('data', function (data) {
+                    if(data.indexOf('[download]') >= 0){
+                        var perc = data.split(' ')[2];
+                        var html = "Descargando en el servidor...";
+
+                        if(perc.indexOf('%')>=0){
+                            html += "<table style=\"width:100%\">"
+                                + "<tr>"
+                                    + "<td style=\"height:35px;background:#037367;border-radius:4px;color:white;font-weight:bold;text-align:center;vertical-align:middle;width:" +data.split(' ')[2] + "\">"
+                                        + data.split(' ')[2] 
+                                    +"</td>"
+                                    +"<td></td>"
+                                +"</tr>"
+                            +"</table>"
+                        }
+                        resultsDiv.innerHTML = html;
+                    }
+                });
+
+                socket.on('finish', function (){
+                    resultsDiv.innerHTML = "<audio style=\"width:100%\" src=\"/get-media?folderName=" + folderName + "\" controls></audio>"
+                        + "<button onclick=\"downloadMedia('" + folderName + "')\" class=\"coco-btn-primary\">DESCARGAR</button>";
+                })
+            }
+
+            function getVideo(videoId){
+                hideOptions();
+
+                var resultsDiv = document.getElementById(videoId + '-results');
+                var folderName = buildFolderName();
+
+                resultsDiv.innerHTML = "Obteniendo v&iacute;deo...";
+                
+                makeHTTPRequest('/get-mp4?videoId=' + videoId + '&folderName=' + folderName + '&socketId=' + socketId, 'POST', function (response){
+                    resultsDiv.innerHTML ="Descargando en el servidor...";
+                }, function (error){
+                    resultsDiv.innerHTML = "<strong>ERROR:</strong> " + error;
+                })
+
+                socket.on('data', function (data) {
+                    if(data.indexOf('[download]') >= 0){
+                        var perc = data.split(' ')[2];
+                        var html = "Descargando en el servidor...";
+
+                        if(perc.indexOf('%')>=0){
+                            html += "<table style=\"width:100%\">"
+                                + "<tr>"
+                                    + "<td style=\"height:35px;background:#037367;border-radius:4px;color:white;font-weight:bold;text-align:center;vertical-align:middle;width:" +data.split(' ')[2] + "\">"
+                                        + data.split(' ')[2] 
+                                    +"</td>"
+                                    +"<td></td>"
+                                +"</tr>"
+                            +"</table>"
+                        }
+                        resultsDiv.innerHTML = html;
+                    }
+                });
+
+                socket.on('finish', function (){
+                    resultsDiv.innerHTML = "<video style=\"width:100%\" src=\"/get-media?folderName=" + folderName + "\" controls></video>"
+                        + "<button onclick=\"downloadMedia('" + folderName + "')\" class=\"coco-btn-primary\">DESCARGAR</button>";
+                })
+            }
+
+            function downloadMedia(folderName){
+                var form = document.createElement("form");
+                form.method = "POST";
+                form.action = "/download?folderName=" + folderName;
+                form.onsubmit = "return false";
+                document.body.appendChild(form);
+                form.submit();
+            }
+
+            function search(){
+                var searchText = inputSearch.value;
+
+                searchResults.innerHTML = "<div style=\"text-align:center\">Buscando...</div>";
+                makeHTTPRequest('https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=' 
+                            + searchText + '&type=video&key=AIzaSyB5aNLXS6p869esiJFZMxsoxniDDWvmEgg','GET', function (response){
+                    response = JSON.parse(response);
+                    console.log(response);
+                    if(!response){
+                        searchResults.innerHTML = "<div style=\"text-align:center\">Sin respuesta</div>"
+                    }
+                    else if(!response.items || response.items.length == 0){
+                        searchResults.innerHTML = "<div style=\"text-align:center\">Sin resultados</div>"
+                    }
+                    else{
+                        var html = "<table style=\"width:100%\">";
+                        response.items.forEach(function (item){
+                            var fixedTitle = item.snippet.title.replace(/["']/g, "");
+    
+                            html += "<tr>"
+                                + "<td>"
+                                    + "<div  onclick=\"showOptions('" + item.id.videoId + "','" + fixedTitle + "')\">" 
+                                        +item.snippet.title
+                                    +"</div>"
+                                    + "<div id=\"" + item.id.videoId + "-results\"></div>"
+                                +"</td>"
+                                + "<td style=\"text-align:right\">"
+                                    + "<img src=\"" + item.snippet.thumbnails.default.url + "\" />"
+                                +"</td>"
+                            +"</tr>";
+
+                        })
+
+                        html += "</table>";
+
+                        searchResults.innerHTML = html;
+                    }
+                }, function (error){
+                    searchResults.innerHTML = "<div style=\"text-align:center\"><strong>Error: </strong>" + error + "</div>";
+                });
+                
+                return false;
+            }
+
+            function buildFolderName() {
+                var random = Math.random()*1000000000 + 1;
+            
+                var clientIP = random.toString().split('.')[0];
+                
+                return clientIP + '_' + Date.now();
+            }
+        </script>
+    </body>
 </html>

@@ -8,11 +8,11 @@
   },
   "dependencies": {
     "express": "*",
-    "body-parser": "*",
+    "http": "*",
+    "socket.io": "*",
+    "child_process": "*",
     "fs": "*",
-    "path": "*",
-    "util": "*",
     "glob": "*",
-    "mime-db": "*"
+    "mediaserver": "*"
   }
 }
