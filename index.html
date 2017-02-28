@@ -2,6 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <link rel="icon" type="image/png" href="img/logo.png" />
         <title>COCO</title>
         <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
         <style>
@@ -30,6 +31,7 @@
             }
             .coco-form-group
             {
+                cursor: pointer;
                 padding:7px;
             }
 
@@ -55,6 +57,7 @@
                 font-size:1.3em;
                 padding:7px;
                 border:1px solid #7b895b;
+                cursor: pointer;
             }
             .coco-btn-primary:active
             {
@@ -78,9 +81,25 @@
             input:-webkit-autofill {
                 -webkit-box-shadow: 0 0 0px 1000px white inset;
             }
+
+            .coco-footer
+            {
+                color:gray;
+                text-align: center;
+                border-top: 1px solid lightgray;
+            }
         </style>
     </head>
     <body class="coco-body">
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-70149906-1', 'auto');
+            ga('send', 'pageview');
+        </script>
         <div id="main-navbar" class="coco-navbar">
             COCO
         </div>
@@ -95,6 +114,19 @@
                 <div id="search-results" class="coco-search-results">
 
                 </div>
+                <div class="coco-footer">
+                    <table style="width:100%">
+                        <tr>
+                            <td style="text-align:right;width:35px;vertical-align: middle">
+                                <img src="/img/logo.png" style="height:30px"/> 
+                            </td>
+                            <td style="text-align: left">
+                                Luis Alberto Saucedo Quiroga
+                                <br>Santa Cruz - Bolivia 2017
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </form>
         </div>
         <div id="options-modal" class="coco-modal" style="display:none">
@@ -104,13 +136,13 @@
                         <div style="background:white;border-radius: 4px; border:1px solid #7b895b">
                             <div id="options-title" style="padding:7px;text-align:center;background:#037367;color:white;font-weight:bold">
                             </div>
-                            <div id="get-mp3-btn" style="padding:7px;text-align: center;border-bottom:1px solid lightgray">
+                            <div id="get-mp3-btn" style="cursor:pointer;padding:7px;text-align: center;border-bottom:1px solid lightgray">
                                 Obtener MP3
                             </div>
-                            <div id="get-video-btn" style="padding:7px;text-align: center;border-bottom:1px solid lightgray">
+                            <div id="get-video-btn" style="cursor:pointer;padding:7px;text-align: center;border-bottom:1px solid lightgray">
                                 Obtener v&iacute;deo
                             </div>
-                            <div onclick="hideOptions()" style="padding:7px;text-align: center;background:#eee;border:lightgray">
+                            <div onclick="hideOptions()" style="cursor:pointer;padding:7px;text-align: center;background:#eee;border:lightgray">
                                 Cancelar
                             </div>
                         </div>
@@ -295,13 +327,13 @@
     
                             html += "<tr>"
                                 + "<td>"
-                                    + "<div  onclick=\"showOptions('" + item.id.videoId + "','" + fixedTitle + "')\">" 
+                                    + "<div  onclick=\"showOptions('" + item.id.videoId + "','" + fixedTitle + "')\" style=\"cursor:pointer\">" 
                                         +item.snippet.title
                                     +"</div>"
                                     + "<div id=\"" + item.id.videoId + "-results\"></div>"
                                 +"</td>"
                                 + "<td style=\"text-align:right\">"
-                                    + "<img src=\"" + item.snippet.thumbnails.default.url + "\" />"
+                                    + "<img src=\"" + item.snippet.thumbnails.default.url + "\"   onclick=\"showOptions('" + item.id.videoId + "','" + fixedTitle + "')\" style=\"cursor:pointer\"/>"
                                 +"</td>"
                             +"</tr>";
 
