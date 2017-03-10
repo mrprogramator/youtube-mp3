@@ -223,11 +223,10 @@
                 hideOptions();
 
                 var resultsDiv = document.getElementById(videoId + '-results');
-                var folderName = buildFolderName();
 
                 resultsDiv.innerHTML = "Obteniendo audio...";
                 
-                makeHTTPRequest('/get-mp3?videoId=' + videoId + '&folderName=' + folderName + '&socketId=' + socketId, 'POST', function (response){
+                makeHTTPRequest('/get-mp3?videoId=' + videoId + '&socketId=' + socketId, 'POST', function (response){
                     resultsDiv.innerHTML ="Descargando en el servidor...";
                 }, function (error){
                     resultsDiv.innerHTML = "<strong>ERROR:</strong> " + error;
@@ -252,9 +251,9 @@
                     }
                 });
 
-                socket.on('finish', function (){
-                    resultsDiv.innerHTML = "<audio style=\"width:100%\" src=\"/get-media?folderName=" + folderName + "\" controls></audio>"
-                        + "<button onclick=\"downloadMedia('" + folderName + "')\" class=\"coco-btn-primary\">DESCARGAR</button>";
+                socket.on('finish', function (data) {
+                    resultsDiv.innerHTML = "<audio style=\"width:100%\" src=\"/get-media?folderName=" + data.folderName + "\" controls></audio>"
+                        + "<button onclick=\"downloadMedia('" + data.folderName + "')\" class=\"coco-btn-primary\">DESCARGAR</button>";
                 })
             }
 
@@ -262,11 +261,10 @@
                 hideOptions();
 
                 var resultsDiv = document.getElementById(videoId + '-results');
-                var folderName = buildFolderName();
 
                 resultsDiv.innerHTML = "Obteniendo v&iacute;deo...";
                 
-                makeHTTPRequest('/get-mp4?videoId=' + videoId + '&folderName=' + folderName + '&socketId=' + socketId, 'POST', function (response){
+                makeHTTPRequest('/get-mp4?videoId=' + videoId + '&socketId=' + socketId, 'POST', function (response){
                     resultsDiv.innerHTML ="Descargando en el servidor...";
                 }, function (error){
                     resultsDiv.innerHTML = "<strong>ERROR:</strong> " + error;
@@ -291,9 +289,9 @@
                     }
                 });
 
-                socket.on('finish', function (){
-                    resultsDiv.innerHTML = "<video style=\"width:100%\" src=\"/get-media?folderName=" + folderName + "\" controls></video>"
-                        + "<button onclick=\"downloadMedia('" + folderName + "')\" class=\"coco-btn-primary\">DESCARGAR</button>";
+                socket.on('finish', function (data) {
+                    resultsDiv.innerHTML = "<video style=\"width:100%\" src=\"/get-media?folderName=" + data.folderName + "\" controls></video>"
+                        + "<button onclick=\"downloadMedia('" + data.folderName + "')\" class=\"coco-btn-primary\">DESCARGAR</button>";
                 })
             }
 
@@ -348,14 +346,6 @@
                 });
                 
                 return false;
-            }
-
-            function buildFolderName() {
-                var random = Math.random()*1000000000 + 1;
-            
-                var clientIP = random.toString().split('.')[0];
-                
-                return clientIP + '_' + Date.now();
             }
         </script>
     </body>

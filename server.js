@@ -27,7 +27,9 @@ io.on('connection', function(socket){
 const AUDIO_TYPE = 'AUDIO_TYPE';
 const VIDEO_TYPE = 'VIDEO_TYPE';
 
-function downloadMedia(videoId, type, folderName, currentClient) {
+function downloadMedia(videoId, type, currentClient) {
+    const folderName = buildFolderName();
+
     let options = [
         '--ffmpeg-location', './ffmpeg',
         '-o', folderName + "/%(title)s.%(ext)s",
@@ -59,7 +61,9 @@ function downloadMedia(videoId, type, folderName, currentClient) {
 
         process.on('exit', function (code, data) {
             if (currentClient){
-                currentClient.emit('finish');
+                currentClient.emit('finish', {
+                    folderName: folderName
+                });
             }
         });
     });
@@ -67,24 +71,22 @@ function downloadMedia(videoId, type, folderName, currentClient) {
 
 app.post('/get-mp3', function (req, res){
     var videoId = req.query.videoId;
-    var folderName = req.query.folderName;
     var socketId = req.query.socketId;
     var currentClient = io.sockets.connected[socketId];
     
     res.send(true);
 
-    downloadMedia(videoId, AUDIO_TYPE, folderName, currentClient);
+    downloadMedia(videoId, AUDIO_TYPE, currentClient);
 })
 
 app.post('/get-mp4', function (req, res){
     var videoId = req.query.videoId;
-    var folderName = req.query.folderName;
     var socketId = req.query.socketId;
     var currentClient = io.sockets.connected[socketId];
     
     res.send(true);
 
-    downloadMedia(videoId, VIDEO_TYPE, folderName, currentClient);
+    downloadMedia(videoId, VIDEO_TYPE, currentClient);
 })
 
 app.get('/get-media', function (req, res){
@@ -164,3 +166,11 @@ app.get('/version', function (req, res) {
         res.send(logProccess);
     })
 });
+
+function buildFolderName() {
+    var random = Math.random()*1000000000 + 1;
+
+    var clientIP = random.toString().split('.')[0];
+    
+    return clientIP + '_' + Date.now();
+}
