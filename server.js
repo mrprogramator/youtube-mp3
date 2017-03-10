@@ -1,3 +1,5 @@
+'use strict';
+
 var express = require('express');
 
 var app = express();
@@ -22,20 +24,31 @@ io.on('connection', function(socket){
     console.log('a client is connected', socket.id);
 });
 
-app.post('/get-mp3', function (req, res){
-    var videoId = req.query.videoId;
-    var folderName = req.query.folderName;
-    var socketId = req.query.socketId;
-    var currentClient = io.sockets.connected[socketId];
-    
-    res.send(true);
+const AUDIO_TYPE = 'AUDIO_TYPE';
+const VIDEO_TYPE = 'VIDEO_TYPE';
+
+function downloadMedia(videoId, type, folderName, currentClient) {
+    let options = [
+        '--ffmpeg-location', './ffmpeg',
+        '-o', folderName + "/%(title)s.%(ext)s",
+        '--no-playlist',
+        '--default-search', 'ytsearch',
+        videoId
+    ];
+
+    if (type === AUDIO_TYPE) {
+        options.push(...[
+            '--extract-audio',
+            '--audio-format', 'mp3'
+        ]);
+    } else if (type === VIDEO_TYPE) {
+        options.push(...[
+            '--format', 'mp4'
+        ]);
+    }
 
     fs.mkdir(folderName, function () {
-        var process = child_process.spawn('./youtube-dl',
-        ['--ffmpeg-location','./ffmpeg','-o',
-        folderName + "/%(title)s.%(ext)s",
-        '--no-playlist','--extract-audio','--audio-format','mp3',
-        '--default-search','ytsearch', videoId]);
+        var process = child_process.spawn('./youtube-dl', options);
 
         process.stdout.on('data', function (data) {
             console.log(data.toString());
@@ -49,7 +62,18 @@ app.post('/get-mp3', function (req, res){
                 currentClient.emit('finish');
             }
         });
-    })
+    });
+}
+
+app.post('/get-mp3', function (req, res){
+    var videoId = req.query.videoId;
+    var folderName = req.query.folderName;
+    var socketId = req.query.socketId;
+    var currentClient = io.sockets.connected[socketId];
+    
+    res.send(true);
+
+    downloadMedia(videoId, AUDIO_TYPE, folderName, currentClient);
 })
 
 app.post('/get-mp4', function (req, res){
@@ -60,24 +84,7 @@ app.post('/get-mp4', function (req, res){
     
     res.send(true);
 
-    fs.mkdir(folderName, function () {
-        var process = child_process.spawn("./youtube-dl",
-            ['--ffmpeg-location','./ffmpeg','-o',
-            folderName + "/%(title)s.%(ext)s",'--format',
-            'mp4','--no-playlist','--default-search','ytsearch', videoId]);
-
-        process.stdout.on('data', function (data) {
-            if (currentClient){
-                currentClient.emit('data', data.toString());
-            }
-        });
-
-        process.on('exit', function (code, data) {
-            if (currentClient){
-                currentClient.emit('finish');
-            }
-        });
-    })
+    downloadMedia(videoId, VIDEO_TYPE, folderName, currentClient);
 })
 
 app.get('/get-media', function (req, res){
