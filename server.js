@@ -84,21 +84,28 @@ app.get('/get-media', function (req, res){
     var folderName = req.query.folderName;
 
     glob(folderName + "/*", function (err, files) {
-        if(files == 0) {
+        if(!files || files.length === 0) {
             res.send(false);
         }
-
-        var file = files[0];
-        var fileExt = file.split('.')[1];
-
-        if(fileExt == 'mp3'){
-            ms.pipe(req, res,file,'audio/mp3');
-        }
-        else if(fileExt == 'mp4'){
-            ms.pipe(req, res, file, 'video/mpeg');
-        }
         else{
-            ms.pipe(req, res, file, 'audio/webm');
+            var file = files[0];
+            
+            if(file){
+                var fileExt = file.split('.')[1];
+                
+                if(fileExt == 'mp3'){
+                    ms.pipe(req, res,file,'audio/mp3');
+                }
+                else if(fileExt == 'mp4'){
+                    ms.pipe(req, res, file, 'video/mpeg');
+                }
+                else{
+                    ms.pipe(req, res, file, 'audio/webm');
+                }
+            }
+            else{
+                res.send(false);
+            }
         }
     })
 })
