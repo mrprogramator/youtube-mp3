@@ -5,6 +5,7 @@
         <link rel="icon" type="image/png" href="img/logo.png" />
         <title>COCO</title>
         <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+        <link href="/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
         <style>
             .coco-body
             {
@@ -50,7 +51,11 @@
             }
             .coco-btn-primary
             {
-                width:100%;
+                width: 80%;
+                display: block;
+                text-align: center;
+                border-radius: 4px;
+                margin: 7px auto;
                 font-weight: bold;
                 color:white;
                 background: #037367;
@@ -109,7 +114,7 @@
                     <input id="search-input" placeholder="Nombre o URL" class="coco-input" autofocus/>
                 </div>
                 <div class="coco-form-group">
-                    <button type="submit" class="coco-btn-primary">BUSCAR</button>
+                    <button type="submit" class="coco-btn-primary">BUSCAR <span class="fa fa-search"></span></button>
                 </div>
                 <div id="search-results" class="coco-search-results">
 
@@ -200,11 +205,11 @@
                 optionsTitle.innerHTML = title;
 
                 getMP3Btn.onclick = function () {
-                    getMP3(videoId);
+                    getMP3(videoId, title);
                 }
 
                 getVideoBtn.onclick = function () {
-                    getVideo(videoId);
+                    getVideo(videoId, title);
                 }
 
                 optionsModal.style.display = "";
@@ -214,22 +219,22 @@
                 optionsModal.style.display = "none";
             }
 
-            function getMP3(videoId){
+            function getMP3(videoId, videoName){
                 hideOptions();
                 var resultsDiv = document.getElementById(videoId + '-results');
                 var folderName = buildFolderName();
 
-                resultsDiv.innerHTML = "Conectando con el servicio...";
+                resultsDiv.innerHTML = "Conectando con el servicio <span class=\"fa fa-spinner fa-spin\"></span>";
                 
                 var socket = io('/');
                 var socketId = "";
                 
                 socket.once('connect', function (){
                     socketId = socket.io.engine.id;
-                    resultsDiv.innerHTML = "Obteniendo audio...";
+                    resultsDiv.innerHTML = "Obteniendo audio <span class=\"fa fa-spinner fa-spin\"></span>";
                 
                     makeHTTPRequest('/get-mp3?videoId=' + videoId + '&folderName=' + folderName + '&socketId=' + socketId, 'POST', function (response){
-                        resultsDiv.innerHTML ="Esperando respuesta...";
+                        resultsDiv.innerHTML ="Esperando respuesta <span class=\"fa fa-spinner fa-spin\"></span>";
 
                         socket.on('data', function (data) {
                             var html = data;
@@ -253,7 +258,7 @@
 
                         socket.on('finish', function (){
                             resultsDiv.innerHTML = "<audio style=\"width:100%\" src=\"/get-media?folderName=" + folderName + "\" controls preload=\"none\"></audio>"
-                                + "<button onclick=\"downloadMedia('" + folderName + "')\" class=\"coco-btn-primary\">DESCARGAR</button>";
+                                + "<a class=\"coco-btn-primary\" onclick=\"downloadURI('/get-media?folderName=" + folderName + "','" + videoName + "')\">DESCARGAR</button>";
                         })
                     }, function (error){
                         resultsDiv.innerHTML = "<strong>ERROR:</strong> " + error;
@@ -264,23 +269,23 @@
                 
             }
 
-            function getVideo(videoId){
+            function getVideo(videoId, videoName){
                 hideOptions();
 
                 var resultsDiv = document.getElementById(videoId + '-results');
                 var folderName = buildFolderName();
 
-                resultsDiv.innerHTML = "Conectando con el servicio...";
+                resultsDiv.innerHTML = "Conectando con el servicio <span class=\"fa fa-spinner fa-spin\"></span>";
                 
                 var socket = io('/');
                 var socketId = "";
 
                 socket.once('connect', function (){
                     socketId = socket.io.engine.id;
-                    resultsDiv.innerHTML = "Obteniendo v&iacute;deo...";
+                    resultsDiv.innerHTML = "Obteniendo v&iacute;deo <span class=\"fa fa-spinner fa-spin\"></span>";
                 
                     makeHTTPRequest('/get-mp4?videoId=' + videoId + '&folderName=' + folderName + '&socketId=' + socketId, 'POST', function (response){
-                        resultsDiv.innerHTML ="Esperando respuesta...";
+                        resultsDiv.innerHTML ="Esperando respuesta <span class=\"fa fa-spinner fa-spin\"></span>";
 
                         socket.on('data', function (data) {
                             var html = data;
@@ -303,7 +308,7 @@
 
                         socket.on('finish', function (){
                             resultsDiv.innerHTML = "<video style=\"width:100%\" src=\"/get-media?folderName=" + folderName + "\" controls preload=\"none\"></video>"
-                                + "<button onclick=\"downloadMedia('" + folderName + "')\" class=\"coco-btn-primary\">DESCARGAR</button>";
+                                + "<a class=\"coco-btn-primary\" onclick=\"downloadURI('/get-media?folderName=" + folderName + "','" + videoName + "')\">DESCARGAR</button>";
                         })
                         
                     }, function (error){
@@ -311,12 +316,22 @@
                     })
                 });
             }
+            
+            function downloadURI(uri, name) {
+                var link = document.createElement("a");
+                link.download = name;
+                link.href = uri;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                delete link;
+            }
 
             function downloadMedia(folderName){
                 var form = document.createElement("form");
                 form.method = "POST";
                 form.action = "/download?folderName=" + folderName;
-                form.onsubmit = "return false";
+                form.onsubmit = "event.preventDefault();";
                 document.body.appendChild(form);
                 form.submit();
             }
@@ -324,7 +339,7 @@
             function search(){
                 var searchText = inputSearch.value;
 
-                searchResults.innerHTML = "<div style=\"text-align:center\">Buscando...</div>";
+                searchResults.innerHTML = "<div style=\"text-align:center\">Buscando <span class=\"fa fa-spinner fa-spin\"></span></div>";
                 makeHTTPRequest('https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=' 
                             + searchText + '&type=video&key=AIzaSyB5aNLXS6p869esiJFZMxsoxniDDWvmEgg','GET', function (response){
                     response = JSON.parse(response);
