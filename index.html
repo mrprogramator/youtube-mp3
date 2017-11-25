@@ -164,12 +164,7 @@
             var getVideoBtn = document.getElementById('get-video-btn');
             
             
-            var socket = io('/');
-            var socketId = "";
             
-            socket.on('connect', function (){
-                socketId = socket.io.engine.id;
-            });
 
             function fixLayout(){
                 workArea.style.height = (window.innerHeight - navbar.offsetHeight - 20) + 'px';
@@ -221,41 +216,52 @@
 
             function getMP3(videoId){
                 hideOptions();
-
                 var resultsDiv = document.getElementById(videoId + '-results');
                 var folderName = buildFolderName();
 
-                resultsDiv.innerHTML = "Obteniendo audio...";
+                resultsDiv.innerHTML = "Conectando con el servicio...";
                 
-                makeHTTPRequest('/get-mp3?videoId=' + videoId + '&folderName=' + folderName + '&socketId=' + socketId, 'POST', function (response){
-                    resultsDiv.innerHTML ="Descargando en el servidor...";
-                }, function (error){
-                    resultsDiv.innerHTML = "<strong>ERROR:</strong> " + error;
-                })
+                var socket = io('/');
+                var socketId = "";
+                
+                socket.once('connect', function (){
+                    socketId = socket.io.engine.id;
+                    resultsDiv.innerHTML = "Obteniendo audio...";
+                
+                    makeHTTPRequest('/get-mp3?videoId=' + videoId + '&folderName=' + folderName + '&socketId=' + socketId, 'POST', function (response){
+                        resultsDiv.innerHTML ="Esperando respuesta...";
 
-                socket.on('data', function (data) {
-                    if(data.indexOf('[download]') >= 0){
-                        var perc = data.split(' ')[2];
-                        var html = "Descargando en el servidor...";
+                        socket.on('data', function (data) {
+                            var html = data;
+                            
+                            if(data.indexOf('[download]') >= 0){
+                                var perc = data.split(' ')[2];
+                                if(perc.indexOf('%')>=0){
+                                    html += "<table style=\"width:100%\">"
+                                        + "<tr>"
+                                            + "<td style=\"height:35px;background:#037367;border-radius:4px;color:white;font-weight:bold;text-align:center;vertical-align:middle;width:" +data.split(' ')[2] + "\">"
+                                                + data.split(' ')[2] 
+                                            +"</td>"
+                                            +"<td></td>"
+                                        +"</tr>"
+                                    +"</table>"
+                                }
+                            }
 
-                        if(perc.indexOf('%')>=0){
-                            html += "<table style=\"width:100%\">"
-                                + "<tr>"
-                                    + "<td style=\"height:35px;background:#037367;border-radius:4px;color:white;font-weight:bold;text-align:center;vertical-align:middle;width:" +data.split(' ')[2] + "\">"
-                                        + data.split(' ')[2] 
-                                    +"</td>"
-                                    +"<td></td>"
-                                +"</tr>"
-                            +"</table>"
-                        }
-                        resultsDiv.innerHTML = html;
-                    }
+                            resultsDiv.innerHTML = html;
+                        });
+
+                        socket.on('finish', function (){
+                            resultsDiv.innerHTML = "<audio style=\"width:100%\" src=\"/get-media?folderName=" + folderName + "\" controls preload=\"none\"></audio>"
+                                + "<button onclick=\"downloadMedia('" + folderName + "')\" class=\"coco-btn-primary\">DESCARGAR</button>";
+                        })
+                    }, function (error){
+                        resultsDiv.innerHTML = "<strong>ERROR:</strong> " + error;
+                    })
                 });
 
-                socket.on('finish', function (){
-                    resultsDiv.innerHTML = "<audio style=\"width:100%\" src=\"/get-media?folderName=" + folderName + "\" controls></audio>"
-                        + "<button onclick=\"downloadMedia('" + folderName + "')\" class=\"coco-btn-primary\">DESCARGAR</button>";
-                })
+                
+                
             }
 
             function getVideo(videoId){
@@ -264,37 +270,46 @@
                 var resultsDiv = document.getElementById(videoId + '-results');
                 var folderName = buildFolderName();
 
-                resultsDiv.innerHTML = "Obteniendo v&iacute;deo...";
+                resultsDiv.innerHTML = "Conectando con el servicio...";
                 
-                makeHTTPRequest('/get-mp4?videoId=' + videoId + '&folderName=' + folderName + '&socketId=' + socketId, 'POST', function (response){
-                    resultsDiv.innerHTML ="Descargando en el servidor...";
-                }, function (error){
-                    resultsDiv.innerHTML = "<strong>ERROR:</strong> " + error;
-                })
+                var socket = io('/');
+                var socketId = "";
 
-                socket.on('data', function (data) {
-                    if(data.indexOf('[download]') >= 0){
-                        var perc = data.split(' ')[2];
-                        var html = "Descargando en el servidor...";
+                socket.once('connect', function (){
+                    socketId = socket.io.engine.id;
+                    resultsDiv.innerHTML = "Obteniendo v&iacute;deo...";
+                
+                    makeHTTPRequest('/get-mp4?videoId=' + videoId + '&folderName=' + folderName + '&socketId=' + socketId, 'POST', function (response){
+                        resultsDiv.innerHTML ="Esperando respuesta...";
 
-                        if(perc.indexOf('%')>=0){
-                            html += "<table style=\"width:100%\">"
-                                + "<tr>"
-                                    + "<td style=\"height:35px;background:#037367;border-radius:4px;color:white;font-weight:bold;text-align:center;vertical-align:middle;width:" +data.split(' ')[2] + "\">"
-                                        + data.split(' ')[2] 
-                                    +"</td>"
-                                    +"<td></td>"
-                                +"</tr>"
-                            +"</table>"
-                        }
-                        resultsDiv.innerHTML = html;
-                    }
+                        socket.on('data', function (data) {
+                            var html = data;
+                            if(data.indexOf('[download]') >= 0){
+                                var perc = data.split(' ')[2];
+
+                                if(perc.indexOf('%')>=0){
+                                    html += "<table style=\"width:100%\">"
+                                        + "<tr>"
+                                            + "<td style=\"height:35px;background:#037367;border-radius:4px;color:white;font-weight:bold;text-align:center;vertical-align:middle;width:" +data.split(' ')[2] + "\">"
+                                                + data.split(' ')[2] 
+                                            +"</td>"
+                                            +"<td></td>"
+                                        +"</tr>"
+                                    +"</table>"
+                                }
+                            }
+                            resultsDiv.innerHTML = html;
+                        });
+
+                        socket.on('finish', function (){
+                            resultsDiv.innerHTML = "<video style=\"width:100%\" src=\"/get-media?folderName=" + folderName + "\" controls preload=\"none\"></video>"
+                                + "<button onclick=\"downloadMedia('" + folderName + "')\" class=\"coco-btn-primary\">DESCARGAR</button>";
+                        })
+                        
+                    }, function (error){
+                        resultsDiv.innerHTML = "<strong>ERROR:</strong> " + error;
+                    })
                 });
-
-                socket.on('finish', function (){
-                    resultsDiv.innerHTML = "<video style=\"width:100%\" src=\"/get-media?folderName=" + folderName + "\" controls></video>"
-                        + "<button onclick=\"downloadMedia('" + folderName + "')\" class=\"coco-btn-primary\">DESCARGAR</button>";
-                })
             }
 
             function downloadMedia(folderName){
