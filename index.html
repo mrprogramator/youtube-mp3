@@ -258,7 +258,7 @@
 
                         socket.on('finish', function (){
                             resultsDiv.innerHTML = "<audio style=\"width:100%\" src=\"/get-media?folderName=" + folderName + "\" controls preload=\"none\"></audio>"
-                                + "<a class=\"coco-btn-primary\" onclick=\"downloadURI('/get-media?folderName=" + folderName + "','" + videoName + "')\">DESCARGAR</button>";
+                                + "<a class=\"coco-btn-primary\" onclick=\"downloadURI('/get-media?folderName=" + folderName + "','" + videoName + ".mp3')\">DESCARGAR</button>";
                         })
                     }, function (error){
                         resultsDiv.innerHTML = "<strong>ERROR:</strong> " + error;
@@ -308,7 +308,7 @@
 
                         socket.on('finish', function (){
                             resultsDiv.innerHTML = "<video style=\"width:100%\" src=\"/get-media?folderName=" + folderName + "\" controls preload=\"none\"></video>"
-                                + "<a class=\"coco-btn-primary\" onclick=\"downloadURI('/get-media?folderName=" + folderName + "','" + videoName + "')\">DESCARGAR</button>";
+                                + "<a class=\"coco-btn-primary\" onclick=\"downloadURI('/get-media?folderName=" + folderName + "','" + videoName + ".mp4')\">DESCARGAR</button>";
                         })
                         
                     }, function (error){
