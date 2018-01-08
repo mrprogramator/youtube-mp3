@@ -23,7 +23,7 @@ io.on('connection', function(socket){
 });
 
 app.post('/search', function (req, res){
-    var resultsCount = encodeURIComponent((req.query.resultsCount? req.query.resultsCount: 7));
+    var resultsCount = (JSON.parse(req.query.resultsCount) ? req.query.resultsCount: 7);
     var indication = encodeURIComponent(req.query.indication);
 
     https.get('https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=' + resultsCount + '&q=' 
