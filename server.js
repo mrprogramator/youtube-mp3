@@ -1,11 +1,12 @@
 var express = require('express');
-
 var app = express();
 
 app.use(express.static(__dirname + ''));
 
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var http = require('http');
+var https = require('https');
+var httpServer = http.Server(app);
+var io = require('socket.io')(httpServer);
 
 var child_process = require('child_process');
 var fs = require('fs');
@@ -13,14 +14,33 @@ var glob = require('glob');
 
 var ms = require('mediaserver');
 
-
-http.listen(process.env.PORT || 8080, function(){
+httpServer.listen(process.env.PORT || 8080, function(){
   console.log('listening on :', process.env.PORT || 8080);
 });
 
 io.on('connection', function(socket){
     console.log('a client is connected', socket.id);
 });
+
+app.post('/search', function (req, res){
+    var resultsCount = encodeURIComponent((req.query.resultsCount? req.query.resultsCount: 7));
+    var indication = encodeURIComponent(req.query.indication);
+
+    https.get('https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=' + resultsCount + '&q=' 
+    + indication + '&type=video&key=AIzaSyB5aNLXS6p869esiJFZMxsoxniDDWvmEgg', function(resp){
+        var chunks = ''
+        resp.on('data', function (chunk){
+            chunks += chunk;
+        })
+
+        resp.on('end', function (){
+            res.send(JSON.parse(chunks));
+        })
+    }).on("error", function(e){
+        console.log("Got error: " + e.message);
+        res.send(null);
+    });
+})
 
 app.post('/get-mp3', function (req, res){
     var videoId = req.query.videoId;

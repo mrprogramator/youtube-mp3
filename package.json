@@ -7,12 +7,13 @@
     "npm": "4.3.0"
   },
   "dependencies": {
-    "express": "*",
-    "http": "*",
-    "socket.io": "*",
     "child_process": "*",
+    "express": "*",
     "fs": "*",
     "glob": "*",
-    "mediaserver": "*"
+    "http": "*",
+    "https": "^1.0.0",
+    "mediaserver": "*",
+    "socket.io": "*"
   }
 }
