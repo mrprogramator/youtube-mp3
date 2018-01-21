@@ -1,0 +1,17 @@
+.video-action-btn
+{
+    color:hsl(0, 0%, 53.3%);
+    padding:14px 7px;
+    cursor:pointer;
+}
+
+.video-action-btn:hover
+{
+    background:hsla(0, 0%, 100%, 0.18);
+    color:hsla(0, 100%, 100%, .88);
+}
+
+.video-action-btn:active
+{
+    color:#009688;
+}

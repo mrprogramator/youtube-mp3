@@ -1,0 +1,40 @@
+.menu-item
+{
+    cursor:pointer;
+    padding:10px 24px;
+}
+
+.menu-item i
+{
+    margin-right:27px;
+    color:hsl(0, 0%, 53.3%);
+}
+
+.menu-item.selected i
+{
+    color:#009688;
+}
+
+.menu-item text
+{
+    color:hsla(0, 100%, 100%, .88);
+    font-size:1.4rem;
+    font-weight:500;
+    line-height:2rem;
+    max-height:2rem
+}
+
+.menu-item:hover, .btn-toggle-menu:hover
+{
+    background:hsla(0, 0%, 100%, 0.18)
+}
+
+.btn-toggle-menu
+{
+    cursor:pointer;
+}
+
+.btn-toggle-menu:active
+{
+    color:#009688;
+}

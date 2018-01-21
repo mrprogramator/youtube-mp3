@@ -1,5 +1,6 @@
 var express = require('express');
 var app = express();
+var youtubedl = require('youtube-dl');
 
 app.use(express.static(__dirname + ''));
 
@@ -22,22 +23,37 @@ io.on('connection', function(socket){
     console.log('a client is connected', socket.id);
 });
 
+app.get('/getimg', function (req, res){
+    var videoId = req.query.videoId;
+    var fileName = encodeURIComponent(req.query.fileName);
+
+    https.get('https://i.ytimg.com/vi/' + videoId + '/' + fileName, function(promise){
+        promise.pipe(res);
+    }).on("error", function(e){
+        console.log("Got error: " + e.message);
+        res.send(null);
+    });
+})
+
 app.post('/search', function (req, res){
     var resultsCount = (JSON.parse(req.query.resultsCount) ? req.query.resultsCount: 7);
     var indication = encodeURIComponent(req.query.indication);
 
     https.get('https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=' + resultsCount + '&q=' 
-    + indication + '&type=video&key=AIzaSyB5aNLXS6p869esiJFZMxsoxniDDWvmEgg', function(resp){
-        var chunks = ''
-        resp.on('data', function (chunk){
-            chunks += chunk;
-        })
-
-        resp.on('end', function (){
-            res.send(JSON.parse(chunks));
-        })
+    + indication + '&type=video&key=AIzaSyB5aNLXS6p869esiJFZMxsoxniDDWvmEgg', function(promise){
+        promise.pipe(res);
     }).on("error", function(e){
-        console.log("Got error: " + e.message);
+        res.send(null);
+    });
+})
+
+app.get('/stream', function (req, res){
+    var videoId = req.query.videoId;
+    var video = youtubedl(videoId);
+    video.pipe(res);
+
+    video.on('error', function error(err) {
+        console.log('error:', err);
         res.send(null);
     });
 })

@@ -14,6 +14,7 @@
     "http": "*",
     "https": "^1.0.0",
     "mediaserver": "*",
-    "socket.io": "*"
+    "socket.io": "*",
+    "youtube-dl": "*"
   }
 }

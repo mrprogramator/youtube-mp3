@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <link rel="icon" type="image/png" href="img/logo.png" />
+        <title>COCO</title>
+        <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+        <link href="/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">
+        <style>
+            .coco-body
+            {
+                margin:0px;
+                font-family: 'Roboto', sans-serif;
+                color:#333;
+            }
+            .coco-navbar
+            {
+                background:#00281f;
+                color:white;
+                font-weight: bold;
+                font-size:2em;
+                text-align:center;
+                padding-top:0.3em;
+                padding-bottom:0.2em;
+                box-shadow: 0px 0px 1px 3px #bea42e;
+            }
+            .coco-workarea
+            {
+                padding-top:10px;
+                overflow-y:scroll;
+                overflow-x:hidden;
+            }
+            .coco-form-group
+            {
+                cursor: pointer;
+                padding:7px;
+            }
+
+            .coco-input
+            {
+                width:100%;
+                font-size:1.3em;
+                border-top:none;
+                border-right:none;
+                border-left:none;
+            }
+            .coco-input:focus
+            {
+                outline:none;
+                border-color:#7b895b;
+            }
+            .coco-btn-primary
+            {
+                width: 80%;
+                display: block;
+                text-align: center;
+                border-radius: 4px;
+                margin: 7px auto;
+                font-weight: bold;
+                color:white;
+                background: #037367;
+                font-size:1.3em;
+                padding:7px;
+                border:1px solid #7b895b;
+                cursor: pointer;
+            }
+            .coco-btn-primary:active
+            {
+                border-color:#bea42e;
+            }
+
+            .coco-search-results
+            {
+                padding:10px;
+            }
+
+            .coco-modal
+            {
+                position:absolute;
+                top:0;
+                background:rgba(0, 0, 0, 0.39);
+                width:100%;
+                height: 100%;
+            }
+
+            input:-webkit-autofill {
+                -webkit-box-shadow: 0 0 0px 1000px white inset;
+            }
+
+            .coco-footer
+            {
+                color:gray;
+                text-align: center;
+                border-top: 1px solid lightgray;
+            }
+        </style>
+    </head>
+    <body class="coco-body">
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-70149906-1', 'auto');
+            ga('send', 'pageview');
+        </script>
+        <div id="main-navbar" class="coco-navbar">
+            COCO
+        </div>
+        <div id="work-area" class="coco-workarea">
+            <form type="post" onsubmit="return search()">
+                <div class="coco-form-group">
+                    <input id="search-input" placeholder="Nombre o URL" class="coco-input" autofocus/>
+                </div>
+                <div class="coco-form-group">
+                    <button type="submit" class="coco-btn-primary">BUSCAR <span class="fa fa-search"></span></button>
+                </div>
+                <div id="search-results" class="coco-search-results">
+
+                </div>
+                <div class="coco-footer">
+                    <table style="width:100%">
+                        <tr>
+                            <td style="text-align:right;width:35px;vertical-align: middle">
+                                <img src="/img/logo.png" style="height:30px"/> 
+                            </td>
+                            <td style="text-align: left">
+                                Luis Alberto Saucedo Quiroga
+                                <br>Santa Cruz - Bolivia 2017
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </form>
+        </div>
+        <div id="options-modal" class="coco-modal" style="display:none">
+            <table style="width:100%;height:100%;font-size: 1.3em">
+                <tr>
+                    <td style="height: 100%;vertical-align: middle">
+                        <div style="background:white;border-radius: 4px; border:1px solid #7b895b">
+                            <div id="options-title" style="padding:7px;text-align:center;background:#037367;color:white;font-weight:bold">
+                            </div>
+                            <div id="get-mp3-btn" style="cursor:pointer;padding:7px;text-align: center;border-bottom:1px solid lightgray">
+                                Obtener MP3
+                            </div>
+                            <div id="get-video-btn" style="cursor:pointer;padding:7px;text-align: center;border-bottom:1px solid lightgray">
+                                Obtener v&iacute;deo
+                            </div>
+                            <div onclick="hideOptions()" style="cursor:pointer;padding:7px;text-align: center;background:#eee;border:lightgray">
+                                Cancelar
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <script src="/node_modules/socket.io-client/dist/socket.io.js"></script>
+        
+        <script>
+            var navbar = document.getElementById('main-navbar');
+            var workArea = document.getElementById('work-area');
+            var inputSearch = document.getElementById('search-input');
+            var searchResults = document.getElementById('search-results');
+            var optionsModal = document.getElementById('options-modal');
+            var optionsTitle = document.getElementById('options-title');
+            
+            var getMP3Btn = document.getElementById('get-mp3-btn');
+            var getVideoBtn = document.getElementById('get-video-btn');
+            
+            
+            
+
+            function fixLayout(){
+                workArea.style.height = (window.innerHeight - navbar.offsetHeight - 20) + 'px';
+            }
+
+            window.onload = fixLayout;
+            window.onresize = fixLayout;
+
+            function makeHTTPRequest(url, method, onSuccess, onError){
+                try
+                {
+                    var request = new XMLHttpRequest();
+
+                    request.open(method,url, true);
+
+                    request.onreadystatechange = function (){
+                        if (request.readyState == XMLHttpRequest.DONE) {
+                            onSuccess(request.responseText);
+                        }
+                    };
+
+                    request.onerror = onError;
+
+                    request.send();
+                }
+                catch(exception)
+                {
+                    onError(exception);
+                }
+            }
+
+            function showOptions(videoId, title){
+                optionsTitle.innerHTML = title;
+
+                getMP3Btn.onclick = function () {
+                    getMP3(videoId, title);
+                }
+
+                getVideoBtn.onclick = function () {
+                    getVideo(videoId, title);
+                }
+
+                optionsModal.style.display = "";
+            }
+
+            function hideOptions(){
+                optionsModal.style.display = "none";
+            }
+
+            function getMP3(videoId, videoName){
+                hideOptions();
+                var resultsDiv = document.getElementById(videoId + '-results');
+                var folderName = buildFolderName();
+
+                resultsDiv.innerHTML = "Conectando con el servicio <span class=\"fa fa-spinner fa-spin\"></span>";
+                
+                var socket = io('/');
+                var socketId = "";
+                
+                socket.once('connect', function (){
+                    socketId = socket.io.engine.id;
+                    resultsDiv.innerHTML = "Obteniendo audio <span class=\"fa fa-spinner fa-spin\"></span>";
+                
+                    makeHTTPRequest('/get-mp3?videoId=' + videoId + '&folderName=' + folderName + '&socketId=' + socketId, 'POST', function (response){
+                        resultsDiv.innerHTML ="Esperando respuesta <span class=\"fa fa-spinner fa-spin\"></span>";
+
+                        socket.on('data', function (data) {
+                            var html = data;
+                            
+                            if(data.indexOf('[download]') >= 0){
+                                var perc = data.split(' ')[2];
+                                if(perc.indexOf('%')>=0){
+                                    html += "<table style=\"width:100%\">"
+                                        + "<tr>"
+                                            + "<td style=\"height:35px;background:#037367;border-radius:4px;color:white;font-weight:bold;text-align:center;vertical-align:middle;width:" +data.split(' ')[2] + "\">"
+                                                + data.split(' ')[2] 
+                                            +"</td>"
+                                            +"<td></td>"
+                                        +"</tr>"
+                                    +"</table>"
+                                }
+                            }
+
+                            resultsDiv.innerHTML = html;
+                        });
+
+                        socket.on('finish', function (){
+                            resultsDiv.innerHTML = "<audio style=\"width:100%\" src=\"/get-media?folderName=" + folderName + "\" controls preload=\"none\"></audio>"
+                                + "<a class=\"coco-btn-primary\" onclick=\"downloadURI('/get-media?folderName=" + folderName + "','" + videoName + ".mp3')\">DESCARGAR</button>";
+                        })
+                    }, function (error){
+                        resultsDiv.innerHTML = "<strong>ERROR:</strong> " + error;
+                    })
+                });
+
+                
+                
+            }
+
+            function getVideo(videoId, videoName){
+                hideOptions();
+
+                var resultsDiv = document.getElementById(videoId + '-results');
+                var folderName = buildFolderName();
+
+                resultsDiv.innerHTML = "Conectando con el servicio <span class=\"fa fa-spinner fa-spin\"></span>";
+                
+                var socket = io('/');
+                var socketId = "";
+
+                socket.once('connect', function (){
+                    socketId = socket.io.engine.id;
+                    resultsDiv.innerHTML = "Obteniendo v&iacute;deo <span class=\"fa fa-spinner fa-spin\"></span>";
+                
+                    makeHTTPRequest('/get-mp4?videoId=' + videoId + '&folderName=' + folderName + '&socketId=' + socketId, 'POST', function (response){
+                        resultsDiv.innerHTML ="Esperando respuesta <span class=\"fa fa-spinner fa-spin\"></span>";
+
+                        socket.on('data', function (data) {
+                            var html = data;
+                            if(data.indexOf('[download]') >= 0){
+                                var perc = data.split(' ')[2];
+
+                                if(perc.indexOf('%')>=0){
+                                    html += "<table style=\"width:100%\">"
+                                        + "<tr>"
+                                            + "<td style=\"height:35px;background:#037367;border-radius:4px;color:white;font-weight:bold;text-align:center;vertical-align:middle;width:" +data.split(' ')[2] + "\">"
+                                                + data.split(' ')[2] 
+                                            +"</td>"
+                                            +"<td></td>"
+                                        +"</tr>"
+                                    +"</table>"
+                                }
+                            }
+                            resultsDiv.innerHTML = html;
+                        });
+
+                        socket.on('finish', function (){
+                            resultsDiv.innerHTML = "<video style=\"width:100%\" src=\"/get-media?folderName=" + folderName + "\" controls preload=\"none\"></video>"
+                                + "<a class=\"coco-btn-primary\" onclick=\"downloadURI('/get-media?folderName=" + folderName + "','" + videoName + ".mp4')\">DESCARGAR</button>";
+                        })
+                        
+                    }, function (error){
+                        resultsDiv.innerHTML = "<strong>ERROR:</strong> " + error;
+                    })
+                });
+            }
+            
+            function downloadURI(uri, name) {
+                var link = document.createElement("a");
+                link.download = name;
+                link.href = uri;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                delete link;
+            }
+
+            function downloadMedia(folderName){
+                var form = document.createElement("form");
+                form.method = "POST";
+                form.action = "/download?folderName=" + folderName;
+                form.onsubmit = "event.preventDefault();";
+                document.body.appendChild(form);
+                form.submit();
+            }
+
+            function search(){
+                var searchText = inputSearch.value;
+
+                searchResults.innerHTML = "<div style=\"text-align:center\">Buscando <span class=\"fa fa-spinner fa-spin\"></span></div>";
+                makeHTTPRequest('https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=' 
+                            + searchText + '&type=video&key=AIzaSyB5aNLXS6p869esiJFZMxsoxniDDWvmEgg','GET', function (response){
+                    response = JSON.parse(response);
+                    console.log(response);
+                    if(!response){
+                        searchResults.innerHTML = "<div style=\"text-align:center\">Sin respuesta</div>"
+                    }
+                    else if(!response.items || response.items.length == 0){
+                        searchResults.innerHTML = "<div style=\"text-align:center\">Sin resultados</div>"
+                    }
+                    else{
+                        var html = "<table style=\"width:100%\">";
+                        response.items.forEach(function (item){
+                            var fixedTitle = item.snippet.title.replace(/["']/g, "");
+    
+                            html += "<tr>"
+                                + "<td>"
+                                    + "<div  onclick=\"showOptions('" + item.id.videoId + "','" + fixedTitle + "')\" style=\"cursor:pointer\">" 
+                                        +item.snippet.title
+                                    +"</div>"
+                                    + "<div id=\"" + item.id.videoId + "-results\"></div>"
+                                +"</td>"
+                                + "<td style=\"text-align:right\">"
+                                    + "<img src=\"" + item.snippet.thumbnails.default.url + "\"   onclick=\"showOptions('" + item.id.videoId + "','" + fixedTitle + "')\" style=\"cursor:pointer\"/>"
+                                +"</td>"
+                            +"</tr>";
+
+                        })
+
+                        html += "</table>";
+
+                        searchResults.innerHTML = html;
+                    }
+                }, function (error){
+                    searchResults.innerHTML = "<div style=\"text-align:center\"><strong>Error: </strong>" + error + "</div>";
+                });
+                
+                return false;
+            }
+
+            function buildFolderName() {
+                var random = Math.random()*1000000000 + 1;
+            
+                var clientIP = random.toString().split('.')[0];
+                
+                return clientIP + '_' + Date.now();
+            }
+        </script>
+    </body>
+</html>
