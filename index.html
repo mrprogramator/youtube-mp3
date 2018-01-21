@@ -40,7 +40,10 @@
         </div>
         <div id="results" style="margin-left:240px;padding:14px;padding-top:56px;">
         </div>
-        <div id="playlists" style="margin-left:240px;padding:14px;padding-top:56px;height:100%;display:none"></div>
+        <div id="nowplaying" style="margin-left:240px;padding:14px;padding-top:56px;height:100%;display:none"></div>
+        <div id="downloads" style="margin-left:240px;padding:14px;padding-top:56px;display:none">
+            <table id="downloads-list" style="display:none"></table>
+        </div>
         <script src="js/request.js"></script>
         <script src="js/time.js"></script>
         <script src="js/list-templates.js"></script>
@@ -60,18 +63,22 @@
                 deviceLanguage = navigator.language;
                 (deviceLanguage && deviceLanguage.indexOf('es') >= 0? document.getElementById('search-input').placeholder = "Buscar" : document.getElementById('search-input').placeholder = "Search" );
                 showHome();
+
+                document.getElementById('downloads').innerHTML += getDownloadsPageInitialTemplate();
             }
 
             function handleSearch(){
                 var resultsDiv = document.getElementById('results');
                 var searchInput = document.getElementById('search-input');
                 var indication = searchInput.value;
-                var playlistsDiv = document.getElementById('playlists');
-                playlistsDiv.style.display = 'none';
+                var nowPlayingDiv = document.getElementById('nowplaying');
+                var downloadsDiv = document.getElementById('downloads');
+                nowPlayingDiv.style.display = 'none';
+                downloadsDiv.style.display = 'none';
                 resultsDiv.style.display = '';
                 resultsDiv.innerHTML = loadingHTML;
                 
-                search(indication, 7, function (results){
+                search(indication, 50, function (results){
                     resultsDiv.innerHTML = getListTemplate(results);
                 }, function () {
                     resultsDiv.innerHTML = "<div style=\"text-align:center\">"
@@ -86,36 +93,30 @@
             function handlePlay(videoId, videoTitle, channelTitle, publishedAt, imgUrl){
                 window.scrollTo(0,0);
                 var resultsDiv = document.getElementById('results');
-                var playlistsDiv = document.getElementById('playlists');
+                var nowPlayingDiv = document.getElementById('nowplaying');
+                var downloadsDiv = document.getElementById('downloads');
                 resultsDiv.style.display = 'none';
-                playlistsDiv.style.display = '';
-                playlistsDiv.innerHTML = loadingHTML;
+                downloadsDiv.style.display = 'none';
+                nowPlayingDiv.style.display = '';
+                nowPlayingDiv.innerHTML = loadingHTML;
 
-                loadPlaylists(function (results){
-                    playlistsDiv.innerHTML = getPlaylistsTemplate(results, videoId, videoTitle, channelTitle, publishedAt, imgUrl);
-                    
-                    document.getElementsByTagName('video')[0].addEventListener('progress', onVideoLoaded);
-                    document.getElementsByTagName('video')[0].addEventListener('error', onVideoError);
-                    
-                    videoLoadTimeout = setTimeout(onVideoError, 300000);
+                nowPlayingDiv.innerHTML = getPlayVideoTemplate(videoId, videoTitle, channelTitle, publishedAt, imgUrl);
+                document.getElementsByTagName('video')[0].addEventListener('progress', onVideoLoaded);
+                document.getElementsByTagName('video')[0].addEventListener('error', onVideoError);
+                
+                videoLoadTimeout = setTimeout(onVideoError, 300000);
 
-                    var similarTracksDiv = document.getElementById('similar-tracks');
-                    similarTracksDiv.innerHTML = loadingHTML;
-                    
-                    search(channelTitle, 14, function (results){
-                        results.items = results.items.filter(function (r) { return r.id.videoId != videoId });
-                        similarTracksDiv.innerHTML = getListTemplate(results);
-                    }, function(){
-                        similarTracksDiv.innerHTML = '';
-                    });
-
+                var similarTracksDiv = document.getElementById('similar-tracks');
+                similarTracksDiv.innerHTML = loadingHTML;
+                
+                search(channelTitle, 50, function (results){
+                    results.items = results.items.filter(function (r) { return r.id.videoId != videoId });
+                    similarTracksDiv.innerHTML = getListTemplate(results);
                 }, function(){
-                    playlistsDiv.innerHTML = "<div style=\"text-align:center\">"
-                        + "<i class=\"fa fa-bug\"> Error"
-                    +"</div>";
-                })
+                    similarTracksDiv.innerHTML = '';
+                });
 
-                document.getElementById('side-menu').innerHTML = getMenuTemplate('playlists');
+                document.getElementById('side-menu').innerHTML = getMenuTemplate('nowplaying');
             }
 
             function onVideoLoaded(){
@@ -134,8 +135,10 @@
 
             function showHome(){
                 var resultsDiv = document.getElementById('results');
-                var playlistsDiv = document.getElementById('playlists');
-                playlistsDiv.style.display = 'none';
+                var nowPlayingDiv = document.getElementById('nowplaying');
+                var downloadsDiv = document.getElementById('downloads');
+                nowPlayingDiv.style.display = 'none';
+                downloadsDiv.style.display = 'none';
                 resultsDiv.style.display = '';
                 resultsDiv.innerHTML = loadingHTML;
 
@@ -152,8 +155,10 @@
 
             function showTrending(){
                 var resultsDiv = document.getElementById('results');
-                var playlistsDiv = document.getElementById('playlists');
-                playlistsDiv.style.display = 'none';
+                var nowPlayingDiv = document.getElementById('nowplaying');
+                var downloadsDiv = document.getElementById('downloads');
+                nowPlayingDiv.style.display = 'none';
+                downloadsDiv.style.display = 'none';
                 resultsDiv.style.display = '';
                 resultsDiv.innerHTML = loadingHTML;
 
@@ -170,28 +175,55 @@
 
             function showPlaylists() {
                 var resultsDiv = document.getElementById('results');
-                var playlistsDiv = document.getElementById('playlists');
-                resultsDiv.style.display = 'none';
-                playlistsDiv.style.display = '';
-                if(playlistsDiv.innerHTML.length === 0){
-                    playlistsDiv.innerHTML = loadingHTML;
+                var nowPlayingDiv = document.getElementById('nowplaying');
+                var downloadsDiv = document.getElementById('downloads');
+                nowPlayingDiv.style.display = 'none';
+                downloadsDiv.style.display = 'none';
+                resultsDiv.style.display = '';
+                resultsDiv.innerHTML = loadingHTML;
 
-                    loadPlaylists(function (results){
-                        playlistsDiv.innerHTML = getPlaylistsTemplate(results);
-                    }, function(){
-                        playlistsDiv.innerHTML = "<div style=\"text-align:center\">"
-                            + "<i class=\"fa fa-bug\"> Error"
-                        +"</div>";
-                    })
-                }
+                loadPlaylists(function (results){
+                    resultsDiv.innerHTML = getPlaylistsTemplate(results);
+                }, function(){
+                    resultsDiv.innerHTML = "<div style=\"text-align:center\">"
+                        + "<i class=\"fa fa-bug\"> Error"
+                    +"</div>";
+                })
 
                 document.getElementById('side-menu').innerHTML = getMenuTemplate('playlists');
+            }
+
+            function showDownloads(){
+                var resultsDiv = document.getElementById('results');
+                var nowPlayingDiv = document.getElementById('nowplaying');
+                var downloadsDiv = document.getElementById('downloads');
+                nowPlayingDiv.style.display = 'none';
+                resultsDiv.style.display = 'none';
+                downloadsDiv.style.display = '';
+
+                document.getElementById('side-menu').innerHTML = getMenuTemplate('downloads');
+            }
+
+            function showNowPlaying() {
+                var resultsDiv = document.getElementById('results');
+                var nowPlayingDiv = document.getElementById('nowplaying');
+                var downloadsDiv = document.getElementById('downloads');
+                resultsDiv.style.display = 'none';
+                downloadsDiv.style.display = 'none';
+                nowPlayingDiv.style.display = '';
+
+                if(nowPlayingDiv.innerHTML.length == 0) {
+                    nowPlayingDiv.innerHTML = getPlayVideoTemplate();
+                }
+
+                document.getElementById('side-menu').innerHTML = getMenuTemplate('nowplaying');
             }
 
             function toggleSideMenu(){
                 var sideMenu = document.getElementById('side-menu');
                 var resultsDiv = document.getElementById('results');
-                var playlistsDiv = document.getElementById('playlists');
+                var nowPlayingDiv = document.getElementById('nowplaying');
+                var downloadsDiv = document.getElementById('downloads');
                 
                 if(sideMenu.style.display == 'none'){
                     sideMenu.style.display = '';
@@ -201,7 +233,8 @@
                 }
 
                 resultsDiv.style['margin-left'] = sideMenu.offsetWidth + 'px';
-                playlistsDiv.style['margin-left'] = sideMenu.offsetWidth + 'px';
+                nowPlayingDiv.style['margin-left'] = sideMenu.offsetWidth + 'px';
+                downloadsDiv.style['margin-left'] = sideMenu.offsetWidth + 'px';
             }
 
         </script>

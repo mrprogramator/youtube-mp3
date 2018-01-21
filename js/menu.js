@@ -13,11 +13,23 @@ var menuItems = [
         icon: 'fa-rocket',
         action:'showTrending()',
     },
+    // {
+    //     id: 'playlists',
+    //     label: (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "Listas de reproducci&oacute;n" : "Playlists"),
+    //     icon: 'fa-list',
+    //     action:'showPlaylists()'
+    // },
     {
-        id: 'playlists',
-        label: (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "Listas de reproducci&oacute;n" : "Playlists"),
+        id: 'nowplaying',
+        label: (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "Reproduciendo" : "Now playing"),
         icon: 'fa-youtube-play',
-        action:'showPlaylists()'
+        action:'showNowPlaying()'
+    },
+    {
+        id: 'downloads',
+        label: (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "Descargas" : "Downloads"),
+        icon: 'fa-download',
+        action:'showDownloads()'
     }
 ]
 
