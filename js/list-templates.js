@@ -120,7 +120,7 @@ function getPlayVideoTemplate(videoId, videoTitle, channelTitle, publishedAt, im
     else{
         html += "<div style=\"text-align:center;margin-top:25%;font-size:1.6rem\">"
             + "<i class=\"fa fa-coffee fa-2x\" style=\"color:hsl(0, 0%, 53.3%);\"></i><br>"
-            + (deviceLanguage && deviceLanguage.indexOf('es')>=0? "No hay nada por aqu&iacute;.<br>Selecciona un v&ideo para reproducirlo.": "Nothing around here.<br>Select a video to play it.") 
+            + (deviceLanguage && deviceLanguage.indexOf('es')>=0? "No hay nada por aqu&iacute;.<br>Selecciona un v&iacute;deo para reproducirlo.": "Nothing around here.<br>Select a video to play it.") 
         + "</div>";
     }
 
@@ -132,7 +132,7 @@ function getDownloadsPageInitialTemplate(){
     
     html += "<div id=\"downloads-empty-msg\" style=\"text-align:center;margin-top:25%;font-size:1.6rem\">"
         + "<i class=\"fa fa-download fa-2x\" style=\"color:hsl(0, 0%, 53.3%);\"></i><br>"
-        + (deviceLanguage && deviceLanguage.indexOf('es')>=0? "Aqu&iacute; se mostrar&acute;n las descargas.<br>Por el momento no hay ninguna.": "This is the download section.<br>In the mean time, is empty.") 
+        + (deviceLanguage && deviceLanguage.indexOf('es')>=0? "Aqu&iacute; se mostrar&aacute;n las descargas.<br>Por el momento no hay ninguna.": "This is the download section.<br>In the mean time, is empty.") 
     + "</div>";
     return html;
 }
