@@ -47,6 +47,18 @@ app.post('/search', function (req, res){
     });
 })
 
+app.post('/related', function (req, res){
+    var resultsCount = (JSON.parse(req.query.resultsCount) ? req.query.resultsCount: 7);
+    var indication = encodeURIComponent(req.query.indication);
+
+    https.get('https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=' + resultsCount + '&relatedToVideoId=' 
+    + indication + '&type=video&key=AIzaSyB5aNLXS6p869esiJFZMxsoxniDDWvmEgg', function(promise){
+        promise.pipe(res);
+    }).on("error", function(e){
+        res.send(null);
+    });
+})
+
 app.get('/stream', function (req, res){
     var videoId = req.query.videoId;
     var video = youtubedl(videoId);
@@ -74,7 +86,6 @@ app.post('/get-mp3', function (req, res){
         '--default-search','ytsearch', videoId]);
 
         process.stdout.on('data', function (data) {
-            console.log(data.toString());
             if (currentClient){
                 currentClient.emit('data', data.toString());
             }
@@ -168,7 +179,6 @@ app.get('/upgrade', function (req, res) {
 
     var logProccess = "";
     process.stdout.on('data', function (data) {
-        console.log('stdout: ' + data);
         logProccess += data.toString();
         
     });
@@ -187,7 +197,6 @@ app.get('/version', function (req, res) {
 
     var logProccess = "";
     process.stdout.on('data', function (data) {
-        console.log('stdout: ' + data);
         logProccess += data.toString();
         
     });

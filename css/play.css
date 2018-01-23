@@ -5,6 +5,11 @@
     cursor:pointer;
 }
 
+.video-action-btn.nolabel
+{
+    padding:7px;
+}
+
 .video-action-btn:hover
 {
     background:hsla(0, 0%, 100%, 0.18);

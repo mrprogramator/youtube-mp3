@@ -1,6 +1,6 @@
-function getBoxTemplate(trendingList){
+function getBoxTemplate(trendingList, title){
     var html = "<div style=\"padding:14px;color:hsla(0, 100%, 100%, .88);font-size:1.6rem;font-weight:700;line-height:2rem;max-height:2rem\">"
-            + (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "Tendencias" : "Trending")
+            + title
     +"</div>";
 
     if(trendingList && trendingList.items && trendingList.items.length > 0){
@@ -13,6 +13,20 @@ function getBoxTemplate(trendingList){
             html += "<div style=\"display:inline-block;padding:7px;width:250px;height:233px\">"
                 + "<div style=\"text-align:center\">"
                     + "<img src=\"" + imgUrl + "\" onclick=\"handlePlay('" + item.id.videoId + "','" + fixedTitle + "','" + item.snippet.channelTitle + "','" + getTimeText(item.snippet.publishedAt) + "','" + imgUrl + "')\" style=\"cursor:pointer;max-width:232px\"/>"
+                +"</div>"
+                + "<div style=\"text-align:center;padding:7px\">"
+                    + "<a id=\"add-nowplaying-btnbox-" + item.id.videoId + "\" class=\"video-action-btn nolabel tooltip\" onclick=\"handleAddNowPlaying('" + item.id.videoId + "','" + fixedTitle + "','" + item.snippet.channelTitle + "','" + getTimeText(item.snippet.publishedAt) + "','" + imgUrl + "','add-nowplaying-btnbox-" + item.id.videoId + "', true)\">"
+                        + "<i class=\"fa fa-youtube-play fa-2x\"></i>"
+                        + "<span class=\"tooltiptext tooltiptext-bottom\">" + (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "AGREGAR A LA COLA" : "ADD TO NOW PLAYING") + "</span>"
+                    + "</a> "
+                    + "<a id=\"download-audio-btnbox-" + item.id.videoId + "\" class=\"video-action-btn nolabel tooltip\" onclick=\"getMedia('/get-mp3','mp3','" + item.id.videoId + "','" + fixedTitle + "','" + item.snippet.channelTitle + "','" + getTimeText(item.snippet.publishedAt) + "','" + imgUrl + "','download-audio-btnbox-" + item.id.videoId + "', true)\">"
+                        + "<i class=\"fa fa-music fa-2x\"></i>"
+                        + "<span class=\"tooltiptext tooltiptext-bottom\">" + (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "DESCARGAR AUDIO" : "DOWNLOAD AUDIO") + "</span>"
+                    + "</a> "
+                    + "<a id=\"download-video-btnbox-" + item.id.videoId + "\" class=\"video-action-btn nolabel tooltip\" onclick=\"getMedia('/get-mp4','mp4','" + item.id.videoId + "','" + fixedTitle + "','" + item.snippet.channelTitle + "','" + getTimeText(item.snippet.publishedAt) + "','" + imgUrl + "','download-video-btnbox-" + item.id.videoId + "', true)\">"
+                        + "<i class=\"fa fa-video-camera fa-2x\"></i> "
+                        + "<span class=\"tooltiptext tooltiptext-bottom\">" + (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "DESCARGAR V&Iacute;DEO" : "DOWNLOAD VIDEO") + "</span>"
+                    + "</a>"
                 +"</div>"
                 + "<div onclick=\"handlePlay('" + item.id.videoId + "','" + fixedTitle + "','" + item.snippet.channelTitle + "','" + getTimeText(item.snippet.publishedAt) + "','" + imgUrl + "')\" style=\"cursor:pointer;padding:7px;font-weight:500;line-height:1.6rem;font-size:1.4rem;color:hsla(0, 100%, 100%, .88);\">"
                     + item.snippet.title + "<br>"
@@ -31,11 +45,12 @@ function getBoxTemplate(trendingList){
     return html;
 }
 
-function getListTemplate(searchResultsList){
-    var html = '';
-
+function getListTemplate(searchResultsList, title){
+    var html = "<div style=\"padding:14px;color:hsla(0, 100%, 100%, .88);font-size:1.6rem;font-weight:700;line-height:2rem;max-height:2rem\">"
+        + (title? title:"")
+    +"</div>";
     if(searchResultsList && searchResultsList.items && searchResultsList.items.length > 0){
-        html = "<table style=\"width:100%\">";
+        html += "<table style=\"width:100%\">";
         searchResultsList.items.forEach(function (item){
             var fixedTitle = item.snippet.title.replace(/["']/g, "");
             var imgUrlComponents = item.snippet.thumbnails.medium.url.split('/');
@@ -51,9 +66,23 @@ function getListTemplate(searchResultsList){
                         + item.snippet.title + "<br>"
                         + "<text style=\"color:hsl(0, 0%, 53.3%);line-height:1.8rem;font-size:1.3rem;font-weight:400\">"
                             + item.snippet.channelTitle + " &#8729; " + getTimeText(item.snippet.publishedAt)
-                            + "<div style=\"margin-top:7px\">" + item.snippet.description + "</div>"
+                            + "<div style=\"margin-top:7px\">" + item.snippet.description.substring(0,200) + "</div>"
                         +"</text>"
                     +"</div>"
+                +"</td>"
+                + "<td style=\"width:140px\">"
+                    + "<a id=\"add-nowplaying-btnlist-" + item.id.videoId + "\" class=\"video-action-btn nolabel tooltip\" onclick=\"handleAddNowPlaying('" + item.id.videoId + "','" + fixedTitle + "','" + item.snippet.channelTitle + "','" + getTimeText(item.snippet.publishedAt) + "','" + imgUrl + "','add-nowplaying-btnlist-" + item.id.videoId + "', true)\">"
+                        + "<i class=\"fa fa-youtube-play fa-2x\"></i>"
+                        + "<span class=\"tooltiptext tooltiptext-bottom\">" + (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "AGREGAR A LA COLA" : "ADD TO NOW PLAYING") + "</span>"
+                    + "</a> "
+                    + "<a id=\"download-audio-btnlist-" + item.id.videoId + "\" class=\"video-action-btn nolabel tooltip\" onclick=\"getMedia('/get-mp3','mp3','" + item.id.videoId + "','" + fixedTitle + "','" + item.snippet.channelTitle + "','" + getTimeText(item.snippet.publishedAt) + "','" + imgUrl + "','download-audio-btnlist-" + item.id.videoId + "', true)\">"
+                        + "<i class=\"fa fa-music fa-2x\"></i>"
+                        + "<span class=\"tooltiptext tooltiptext-bottom\">" + (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "DESCARGAR AUDIO" : "DOWNLOAD AUDIO") + "</span>"
+                    + "</a> "
+                    + "<a id=\"download-video-btnlist-" + item.id.videoId + "\" class=\"video-action-btn nolabel tooltip\" onclick=\"getMedia('/get-mp4','mp4','" + item.id.videoId + "','" + fixedTitle + "','" + item.snippet.channelTitle + "','" + getTimeText(item.snippet.publishedAt) + "','" + imgUrl + "','download-video-btnlist-" + item.id.videoId + "', true)\">"
+                        + "<i class=\"fa fa-video-camera fa-2x\"></i> "
+                        + "<span class=\"tooltiptext tooltiptext-bottom\">" + (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "DESCARGAR V&Iacute;DEO" : "DOWNLOAD VIDEO") + "</span>"
+                    + "</a>"
                 +"</td>"
             +"</tr>";
         })
@@ -102,7 +131,11 @@ function getPlayVideoTemplate(videoId, videoTitle, channelTitle, publishedAt, im
                             +"</text>"
                         +"</div>"
                     +"</td>"
-                    + "<td style=\"width:340px;border-bottom:0.7px solid gray\">"
+                    + "<td style=\"text-align:right;border-bottom:0.7px solid gray\">"
+                        + "<a id=\"toggle-autoplay-btn-" + videoId + "\" class=\"video-action-btn\" onclick=\"toggleAutoplay(this)\">"
+                            + "<i class=\"fa " + (autoplay? "fa-toggle-on" : "fa-toggle-off") + " fa-2x\" style=\"margin-right:7px;"+ (autoplay ? "color:#009688": "") +"\"></i>"
+                            + (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "REP. AUTO" : "AUTOPLAY")
+                        + "</a> "
                         + "<a id=\"download-audio-btn-" + videoId + "\" class=\"video-action-btn\" onclick=\"getMedia('/get-mp3','mp3','" + videoId + "','" + videoTitle + "','" + channelTitle + "','" + publishedAt + "','" + imgUrl + "','download-audio-btn-" + videoId + "')\">"
                             + "<i class=\"fa fa-music fa-2x\" style=\"margin-right:7px\"></i>"
                             + (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "DESCARGAR AUDIO" : "DOWNLOAD AUDIO")
@@ -114,7 +147,7 @@ function getPlayVideoTemplate(videoId, videoTitle, channelTitle, publishedAt, im
                     +"</td>"
                 +"</tr>"
             +"</table>"
-            
+            +"<div id=\"nowplaying-tracks\" style=\"background:black\"></div>"
             +"<div id=\"similar-tracks\"></div>";
     }
     else{
@@ -149,7 +182,7 @@ function getDownloadItemTemplate(fileExtension, videoId, videoTitle, channelTitl
 
     html += "<tr>"
         + "<td style=\"text-align:right\">"
-            + "<img src=\"" + imgUrl + "\" style=\"max-width:246px\"/>"
+            + "<img src=\"" + imgUrl + "\" onclick=\"handlePlay('" + videoId + "','" + videoTitle + "','" + channelTitle + "','" + publishedAt + "','" + imgUrl + "')\" style=\"cursor:pointer;max-width:246px\"/>"
         +"</td>"
         + "<td>"
             + "<div style=\"padding:7px;font-weight:500;line-height:1.6rem;font-size:1.4rem;color:hsla(0, 100%, 100%, .88);\">"
@@ -161,6 +194,51 @@ function getDownloadItemTemplate(fileExtension, videoId, videoTitle, channelTitl
             +"</div>"
         +"</td>"
     +"</tr>";
+
+    return html;
+}
+
+function getPlaylistTemplate(list, listDivId){
+    var html = '';
+
+    if(list && list.items && list.items.length > 0){
+        html += "<div style=\"padding:14px;color:hsla(0, 100%, 100%, .88);font-size:1.6rem;font-weight:700;line-height:2rem;max-height:2rem\">"
+            + (list.name? list.name : "")
+        +"</div>";
+
+        html += "<table style=\"width:100%\">";
+        list.items.forEach(function (item){
+            html += "<tr>"
+                + "<td style=\"text-align:right;width:250px\">"
+                    + "<img src=\"" + item.imgUrl + "\" onclick=\"handlePlay('" + item.id + "','" + item.videoTitle + "','" + item.channelTitle + "','" + item.publishedAt + "','" + item.imgUrl + "')\" style=\"cursor:pointer;max-width:246px\"/>"
+                +"</td>"
+                + "<td>"
+                    + "<div onclick=\"handlePlay('" + item.id + "','" + item.videoTitle + "','" + item.channelTitle + "','" + item.publishedAt + "','" + item.imgUrl + "')\" style=\"cursor:pointer;padding:7px;font-weight:500;line-height:1.6rem;font-size:1.4rem" + (videoPlayingId == item.id? ";color:#009688":";color:hsla(0, 100%, 100%, .88)") + "\">"
+                        + item.videoTitle + "<br>"
+                        + "<text style=\"color:hsl(0, 0%, 53.3%);line-height:1.8rem;font-size:1.3rem;font-weight:400\">"
+                            + item.channelTitle + " &#8729; " + item.publishedAt
+                        +"</text>"
+                    +"</div>"
+                +"</td>"
+                + "<td style=\"width:140px\">"
+                    + "<a id=\"uptrack-btnlist-" + item.id.videoId + "\" class=\"video-action-btn nolabel tooltip\" onclick=\"handleMoveItemUpFromList('" + item.id + "','" + list.id + "','" + listDivId + "')\">"
+                        + "<i class=\"fa fa-arrow-up fa-2x\"></i>"
+                        + "<span class=\"tooltiptext tooltiptext-bottom\">" + (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "SUBIR" : "MOVE UP") + "</span>"
+                    + "</a> "
+                    + "<a id=\"downtrack-btnlist-" + item.id.videoId + "\" class=\"video-action-btn nolabel tooltip\" onclick=\"handleMoveItemDownFromList('" + item.id + "','" + list.id + "','" + listDivId + "')\">"
+                        + "<i class=\"fa fa-arrow-down fa-2x\"></i>"
+                        + "<span class=\"tooltiptext tooltiptext-bottom\">" + (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "BAJAR" : "MOVE DOWN") + "</span>"
+                    + "</a> "
+                    + "<a id=\"removetrack-btnlist-" + item.id.videoId + "\" class=\"video-action-btn nolabel tooltip\" onclick=\"handleRemoveFromList('" + item.id + "','" + list.id + "','" + listDivId + "')\">"
+                        + "<i class=\"fa fa-times fa-2x\"></i> "
+                        + "<span class=\"tooltiptext tooltiptext-bottom\">" + (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "ELIMINAR" : "REMOVE") + "</span>"
+                    + "</a>"
+                +"</td>"
+            +"</tr>";
+        })
+
+        html += "</table>";
+    }
 
     return html;
 }

@@ -9,6 +9,7 @@
         <link href="/css/index.css" rel="stylesheet">
         <link href="/css/menu.css" rel="stylesheet">
         <link href="/css/play.css" rel="stylesheet">
+        <link href="/css/tooltip.css" rel="stylesheet">
     </head>
     <body>
         <div style="height:56px;background:rgb(35,35,35);position:fixed;top:0px;width:100%;z-index:1">
@@ -49,10 +50,11 @@
         <script src="js/list-templates.js"></script>
         <script src="js/search.js"></script>
         <script src="js/trending.js"></script>
-        <script src="js/playlists.js"></script>
         <script src="js/menu.js"></script>
         <script src="/node_modules/socket.io-client/dist/socket.io.js"></script>
         <script src="js/download.js"></script>
+        <script src="js/list-handler.js"></script>
+        <script src="js/nowplaying.js"></script>
         
         <script>
             var deviceLanguage;
@@ -65,6 +67,7 @@
                 showHome();
 
                 document.getElementById('downloads').innerHTML += getDownloadsPageInitialTemplate();
+                loadSavedPlaylists();
             }
 
             function handleSearch(){
@@ -95,6 +98,7 @@
                 var resultsDiv = document.getElementById('results');
                 var nowPlayingDiv = document.getElementById('nowplaying');
                 var downloadsDiv = document.getElementById('downloads');
+                resultsDiv.innerHTML = '';
                 resultsDiv.style.display = 'none';
                 downloadsDiv.style.display = 'none';
                 nowPlayingDiv.style.display = '';
@@ -103,18 +107,25 @@
                 nowPlayingDiv.innerHTML = getPlayVideoTemplate(videoId, videoTitle, channelTitle, publishedAt, imgUrl);
                 document.getElementsByTagName('video')[0].addEventListener('progress', onVideoLoaded);
                 document.getElementsByTagName('video')[0].addEventListener('error', onVideoError);
+                document.getElementsByTagName('video')[0].addEventListener('ended', onVideoEnd);
                 
                 videoLoadTimeout = setTimeout(onVideoError, 300000);
 
                 var similarTracksDiv = document.getElementById('similar-tracks');
                 similarTracksDiv.innerHTML = loadingHTML;
                 
-                search(channelTitle, 50, function (results){
+                related(videoId, 50, function (results){
                     results.items = results.items.filter(function (r) { return r.id.videoId != videoId });
-                    similarTracksDiv.innerHTML = getListTemplate(results);
+                    similarTracksDiv.innerHTML = getListTemplate(results,"SIMILAR");
+                    nextSimilarVideo = results.items[0];                    
                 }, function(){
                     similarTracksDiv.innerHTML = '';
                 });
+
+                var nowPlayingList = getList(nowPlayingListId);
+                var nowPlayingTracksDiv = document.getElementById('nowplaying-tracks');
+                videoPlayingId = videoId;
+                nowPlayingTracksDiv.innerHTML = getPlaylistTemplate(nowPlayingList,'nowplaying-tracks');
 
                 document.getElementById('side-menu').innerHTML = getMenuTemplate('nowplaying');
             }
@@ -133,6 +144,71 @@
                 + (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "Error al cargar el v&iacute;deo" : "Could not load video");
             }
 
+            function onVideoEnd(){
+                if(autoplay){
+                    var nowPlayingList = getList(nowPlayingListId);
+                    var nextVideo = getNextVideo();
+
+                    if(nextVideo){
+                        var nowPlayingDiv = document.getElementById('nowplaying');
+                        nowPlayingDiv.innerHTML = getPlayVideoTemplate(nextVideo.id, nextVideo.videoTitle, nextVideo.channelTitle, nextVideo.publishedAt, nextVideo.imgUrl);
+                        document.getElementsByTagName('video')[0].addEventListener('progress', onVideoLoaded);
+                        document.getElementsByTagName('video')[0].addEventListener('error', onVideoError);
+                        document.getElementsByTagName('video')[0].addEventListener('ended', onVideoEnd);
+                        
+                        videoLoadTimeout = setTimeout(onVideoError, 300000);
+
+                        var similarTracksDiv = document.getElementById('similar-tracks');
+                        similarTracksDiv.innerHTML = loadingHTML;
+                        
+                        related(nextVideo.id, 50, function (results){
+                            results.items = results.items.filter(function (r) { return r.id.videoId != nextVideo.id });
+                            similarTracksDiv.innerHTML = getListTemplate(results, "SIMILAR");
+                            nextSimilarVideo = results.items[0];
+                        }, function(){
+                            similarTracksDiv.innerHTML = '';
+                        });
+
+                        videoPlayingId = nextVideo.id;
+
+                        var nowPlayingList = getList(nowPlayingListId);
+                        var nowPlayingTracksDiv = document.getElementById('nowplaying-tracks');
+                        nowPlayingTracksDiv.innerHTML = getPlaylistTemplate(nowPlayingList,'nowplaying-tracks');
+                    }
+                    else{
+                        if(nextSimilarVideo){
+                            var fixedTitle = nextSimilarVideo.snippet.title.replace(/["']/g, "");
+                            var imgUrlComponents = nextSimilarVideo.snippet.thumbnails.medium.url.split('/');
+                            var imgUrl = '/getimg?videoId=' + imgUrlComponents[imgUrlComponents.length - 2] 
+                                    + '&fileName=' + imgUrlComponents[imgUrlComponents.length - 1];
+
+                            var nowPlayingDiv = document.getElementById('nowplaying');
+                            nowPlayingDiv.innerHTML = getPlayVideoTemplate(nextSimilarVideo.id.videoId,fixedTitle,nextSimilarVideo.snippet.channelTitle,getTimeText(nextSimilarVideo.snippet.publishedAt), imgUrl);
+                            document.getElementsByTagName('video')[0].addEventListener('progress', onVideoLoaded);
+                            document.getElementsByTagName('video')[0].addEventListener('error', onVideoError);
+                            document.getElementsByTagName('video')[0].addEventListener('ended', onVideoEnd);
+                            
+                            var similarTracksDiv = document.getElementById('similar-tracks');
+                            similarTracksDiv.innerHTML = loadingHTML;
+
+                            related(nextSimilarVideo.id.videoId, 50, function (results){
+                                results.items = results.items.filter(function (r) { return r.id.videoId != nextSimilarVideo.id.videoId });
+                                similarTracksDiv.innerHTML = getListTemplate(results, "SIMILAR");
+                                nextSimilarVideo = results.items[0];
+                            }, function(){
+                                similarTracksDiv.innerHTML = '';
+                            });
+
+                            videoPlayingId = nextSimilarVideo.id.videoId;
+                            
+                            var nowPlayingList = getList(nowPlayingListId);
+                            var nowPlayingTracksDiv = document.getElementById('nowplaying-tracks');
+                            nowPlayingTracksDiv.innerHTML = getPlaylistTemplate(nowPlayingList,'nowplaying-tracks');
+                        }
+                    }
+                }
+            }
+
             function showHome(){
                 var resultsDiv = document.getElementById('results');
                 var nowPlayingDiv = document.getElementById('nowplaying');
@@ -143,7 +219,8 @@
                 resultsDiv.innerHTML = loadingHTML;
 
                 loadTrending(8, function (results){
-                    resultsDiv.innerHTML = getBoxTemplate(results);
+                    var trendingTitle = (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "Tendencias" : "Trending");
+                    resultsDiv.innerHTML = getBoxTemplate(results, trendingTitle);
                 }, function (){
                     resultsDiv.innerHTML = "<div style=\"text-align:center\">"
                         + "<i class=\"fa fa-bug\"> Error"
@@ -177,19 +254,11 @@
                 var resultsDiv = document.getElementById('results');
                 var nowPlayingDiv = document.getElementById('nowplaying');
                 var downloadsDiv = document.getElementById('downloads');
+
                 nowPlayingDiv.style.display = 'none';
                 downloadsDiv.style.display = 'none';
                 resultsDiv.style.display = '';
-                resultsDiv.innerHTML = loadingHTML;
-
-                loadPlaylists(function (results){
-                    resultsDiv.innerHTML = getPlaylistsTemplate(results);
-                }, function(){
-                    resultsDiv.innerHTML = "<div style=\"text-align:center\">"
-                        + "<i class=\"fa fa-bug\"> Error"
-                    +"</div>";
-                })
-
+                resultsDiv.innerHTML = getPlaylistsTemplate([]);
                 document.getElementById('side-menu').innerHTML = getMenuTemplate('playlists');
             }
 
@@ -199,15 +268,18 @@
                 var downloadsDiv = document.getElementById('downloads');
                 nowPlayingDiv.style.display = 'none';
                 resultsDiv.style.display = 'none';
+                resultsDiv.innerHTML = '';
                 downloadsDiv.style.display = '';
 
                 document.getElementById('side-menu').innerHTML = getMenuTemplate('downloads');
             }
 
             function showNowPlaying() {
+                window.scrollTo(0,0);
                 var resultsDiv = document.getElementById('results');
                 var nowPlayingDiv = document.getElementById('nowplaying');
                 var downloadsDiv = document.getElementById('downloads');
+                resultsDiv.innerHTML = '';
                 resultsDiv.style.display = 'none';
                 downloadsDiv.style.display = 'none';
                 nowPlayingDiv.style.display = '';
@@ -237,6 +309,74 @@
                 downloadsDiv.style['margin-left'] = sideMenu.offsetWidth + 'px';
             }
 
+            function handleAddNowPlaying(videoId, videoTitle, channelTitle, publishedAt, imgUrl, resultsDivId, hideLabels){
+                addToNowPlaying(videoId, videoTitle, channelTitle, publishedAt, imgUrl);
+                var nowPlayingList = getList(nowPlayingListId);
+                var nowPlayingTracksDiv = document.getElementById('nowplaying-tracks');
+
+                if(!nowPlayingTracksDiv){
+                    var nowPlayingDiv = document.getElementById('nowplaying');
+                    nowPlayingDiv.innerHTML = getPlayVideoTemplate(videoId, videoTitle, channelTitle, publishedAt, imgUrl);
+                    document.getElementsByTagName('video')[0].addEventListener('progress', onVideoLoaded);
+                    document.getElementsByTagName('video')[0].addEventListener('error', onVideoError);
+                    document.getElementsByTagName('video')[0].addEventListener('ended', onVideoEnd);
+                    
+                    videoLoadTimeout = setTimeout(onVideoError, 300000);
+
+                    var similarTracksDiv = document.getElementById('similar-tracks');
+                    similarTracksDiv.innerHTML = loadingHTML;
+                    
+                    related(videoId, 50, function (results){
+                        results.items = results.items.filter(function (r) { return r.id.videoId != videoId });
+                        similarTracksDiv.innerHTML = getListTemplate(results, "SIMILAR");
+                        nextSimilarVideo = results.items[0];                        
+                    }, function(){
+                        similarTracksDiv.innerHTML = '';
+                    });
+
+                    nowPlayingTracksDiv = document.getElementById('nowplaying-tracks');
+                    videoPlayingId = videoId;
+                }
+
+                nowPlayingTracksDiv.innerHTML = getPlaylistTemplate(nowPlayingList,'nowplaying-tracks');
+
+                var html = "<span class=\"fa fa-youtube-play fa-2x\" style=\"color:#009688\"></span> ";
+                
+                if(!hideLabels){
+                    html += (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "V&Iacute;DEO EN COLA": "VIDEO QUEUED");
+                }
+                else{
+                    html += "<span class=\"tooltiptext tooltiptext-bottom\">" 
+                            + (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "V&Iacute;DEO EN COLA": "VIDEO QUEUED") 
+                        + "</span>";
+                }
+
+                document.getElementById(resultsDivId).innerHTML = html;
+            }
+
+            function handleRemoveFromList(videoId, listId, listDivId){
+                var list = removeItemFromList(videoId, listId);
+                var listDiv = document.getElementById(listDivId);
+
+                if(listDiv)
+                    listDiv.innerHTML = getPlaylistTemplate(list,listDivId);
+            }
+
+            function handleMoveItemUpFromList(videoId, listId, listDivId){
+                var list = moveItemUp(videoId, listId);
+                var listDiv = document.getElementById(listDivId);
+
+                if(listDiv)
+                    listDiv.innerHTML = getPlaylistTemplate(list,listDivId);
+            }
+
+            function handleMoveItemDownFromList(videoId, listId, listDivId){
+                var list = moveItemDown(videoId, listId);
+                var listDiv = document.getElementById(listDivId);
+
+                if(listDiv)
+                    listDiv.innerHTML = getPlaylistTemplate(list,listDivId);
+            }
         </script>
     </body>
 </html>

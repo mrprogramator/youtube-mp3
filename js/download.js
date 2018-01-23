@@ -5,9 +5,7 @@ var pendingDownloads = [];
 
 function buildFolderName() {
     var random = Math.random()*1000000000 + 1;
-
     var clientIP = random.toString().split('.')[0];
-    
     return clientIP + '_' + Date.now();
 }
 
@@ -21,7 +19,7 @@ function downloadURI(uri, name) {
     delete link;
 }
 
-function getMedia(url, fileExtension, videoId, videoName, channelTitle, publishedAt, imgUrl, resultsDivId) {
+function getMedia(url, fileExtension, videoId, videoName, channelTitle, publishedAt, imgUrl, resultsDivId, hideLabels) {
     
     var fileType = '';
     switch(fileExtension)
@@ -54,8 +52,13 @@ function getMedia(url, fileExtension, videoId, videoName, channelTitle, publishe
             document.getElementById('downloads-list').innerHTML += getDownloadItemTemplate(fileExtension, videoId, videoName, channelTitle, publishedAt, imgUrl);
             document.getElementById(videoId + '-download-progress-' + fileExtension).innerHTML = (deviceLanguage && deviceLanguage.indexOf('es') >= 0? fileType + " en cola" : fileType + " queued");
 
-            document.getElementById(resultsDivId).innerHTML = "<span class=\"fa " + loadingIcon + " fa-2x\"></span> "
-            + (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "En cola" : "Queued");
+            document.getElementById(resultsDivId).innerHTML = "<span class=\"fa fa-download fa-2x\"></span> "
+            + (!hideLabels? 
+                fileType + (deviceLanguage && deviceLanguage.indexOf('es') >= 0? " en cola" : " queued")
+                :
+                "<span class=\"tooltiptext tooltiptext-bottom\">"
+                    + fileType + (deviceLanguage && deviceLanguage.indexOf('es') >= 0? " en cola" : " queued")
+                +"</span>");
         }
 
         return;
@@ -65,21 +68,20 @@ function getMedia(url, fileExtension, videoId, videoName, channelTitle, publishe
     videoDownloadingId = videoId;
     videoDownloadingFileExt = fileExtension;
 
-    var resultsDiv = document.getElementById(resultsDivId);
     var resulstsDivInnerHTML = '';
     var progressMessageHTML = '';
     switch(fileExtension)
     {
         case 'mp3': 
             resulstsDivInnerHTML = "<i class=\"fa fa-music fa-2x\" style=\"margin-right:7px\"></i>"
-            + (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "DESCARGAR AUDIO" : "DOWNLOAD AUDIO");
+            + (!hideLabels? (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "DESCARGAR AUDIO" : "DOWNLOAD AUDIO"):"");
 
             progressMessageHTML = (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "Descargando audio" : "Downloading audio");            
             break;
 
         case 'mp4': 
             resulstsDivInnerHTML = "<i class=\"fa fa-video-camera fa-2x\" style=\"margin-right:7px\"></i> "
-            + (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "DESCARGAR V&Iacute;DEO" : "DOWNLOAD VIDEO");
+            + (!hideLabels? (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "DESCARGAR V&Iacute;DEO" : "DOWNLOAD VIDEO"):"");
 
             progressMessageHTML = (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "Descargando v&iacute;deo" : "Downloading video");            
             break;
@@ -92,11 +94,16 @@ function getMedia(url, fileExtension, videoId, videoName, channelTitle, publishe
         document.getElementById('downloads-list').innerHTML += getDownloadItemTemplate(fileExtension, videoId, videoName, channelTitle, publishedAt, imgUrl);
         resultsDivOnDownloadPage = document.getElementById(videoId + '-download-progress-' + fileExtension);
     }
-    
+
+    var resultsDiv = document.getElementById(resultsDivId);
     if(resultsDiv)
         resultsDiv.innerHTML = "<span class=\"fa fa-cog fa-2x fa-spin\"></span> " 
-                                + progressMessageHTML
-                                + " <span id=\"" + videoId + "-progbtn-" + fileExtension + "\"></span>";
+                                + (!hideLabels? 
+                                    progressMessageHTML + " <span id=\"" + videoId + "-progbtn-" + fileExtension + "\"></span>"
+                                    : "<span class=\"tooltiptext tooltiptext-bottom\">" 
+                                        + progressMessageHTML 
+                                        + " <span id=\"" + videoId + "-progbtn-" + fileExtension + "\"></span>"
+                                    + "</span>");
 
     resultsDivOnDownloadPage.innerHTML = "<span class=\"fa fa-cog fa-spin\" style=\"color:#009688\"></span> "
         + progressMessageHTML
@@ -142,8 +149,12 @@ function getMedia(url, fileExtension, videoId, videoName, channelTitle, publishe
 
                 if(resultsDiv){
                     resultsDiv.innerHTML = "<span class=\"fa fa-check-circle fa-2x\" style=\"color:#009688\"></span> "
-                    + fileType.toUpperCase()
-                    + (deviceLanguage && deviceLanguage.indexOf('es') >= 0? " DESCARGADO": " DOWNLOADED");
+                    + (!hideLabels? 
+                        fileType.toUpperCase() + (deviceLanguage && deviceLanguage.indexOf('es') >= 0? " DESCARGADO": " DOWNLOADED")
+                    : 
+                        "<span class=\"tooltiptext tooltiptext-bottom\">" 
+                            + fileType.toUpperCase() + (deviceLanguage && deviceLanguage.indexOf('es') >= 0? " DESCARGADO": " DOWNLOADED") 
+                        + "</span>");
 
                     setTimeout(function () {
                         resultsDiv.innerHTML = resulstsDivInnerHTML;
@@ -159,7 +170,7 @@ function getMedia(url, fileExtension, videoId, videoName, channelTitle, publishe
                 var nextDownloadItem = pendingDownloads.shift();
                 
                 if(nextDownloadItem)
-                    getMedia(nextDownloadItem.url, nextDownloadItem.fileExtension, nextDownloadItem.videoId, nextDownloadItem.videoName, nextDownloadItem.channelTitle, nextDownloadItem.publishedAt, nextDownloadItem.imgUrl, nextDownloadItem.resultsDivId);
+                    getMedia(nextDownloadItem.url, nextDownloadItem.fileExtension, nextDownloadItem.videoId, nextDownloadItem.videoName, nextDownloadItem.channelTitle, nextDownloadItem.publishedAt, nextDownloadItem.imgUrl, nextDownloadItem.resultsDivId, hideLabels);
 
             })
         }, function (error){
@@ -183,7 +194,7 @@ function getMedia(url, fileExtension, videoId, videoName, channelTitle, publishe
             var nextDownloadItem = pendingDownloads.shift();
             
             if(nextDownloadItem)
-                getMedia(nextDownloadItem.url, nextDownloadItem.fileExtension, nextDownloadItem.videoId, nextDownloadItem.videoName, nextDownloadItem.channelTitle, nextDownloadItem.publishedAt, nextDownloadItem.imgUrl, nextDownloadItem.resultsDivId);
+                getMedia(nextDownloadItem.url, nextDownloadItem.fileExtension, nextDownloadItem.videoId, nextDownloadItem.videoName, nextDownloadItem.channelTitle, nextDownloadItem.publishedAt, nextDownloadItem.imgUrl, nextDownloadItem.resultsDivId, hideLabels);
         })
     });
 }
