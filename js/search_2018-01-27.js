@@ -15,3 +15,12 @@ function related(searchText, resultsCount, onSuccess, onError){
         onError();
     });
 }
+
+function getQualityList(videoId, onSuccess, onError){
+    makeHTTPRequest('/getqualitylist?videoId=' + videoId,'POST', function (response){
+        response = JSON.parse(response);
+        onSuccess(response);
+    }, function (){
+        onError();
+    });
+}

@@ -47,19 +47,21 @@
         </div>
         <script src="js/request.js"></script>
         <script src="js/time.js"></script>
-        <script src="js/list-templates.js"></script>
-        <script src="js/search.js"></script>
+        <script src="js/list-templates_2018-01-27.js"></script>
+        <script src="js/search_2018-01-27.js"></script>
         <script src="js/trending.js"></script>
         <script src="js/menu.js"></script>
         <script src="/node_modules/socket.io-client/dist/socket.io.js"></script>
         <script src="js/download.js"></script>
         <script src="js/list-handler.js"></script>
-        <script src="js/nowplaying.js"></script>
+        <script src="js/nowplaying_2018-01-27.js"></script>
         
         <script>
             var deviceLanguage;
             var loadingHTML = "<div style=\"padding-top:20%;text-align:center\"><i class=\"fa fa-cog fa-4x fa-spin\"></i></div>";
             var videoLoadTimeout = null;
+            var videoQualityList = null;
+            var videoFormatSelected = '';
             
             window.onload = function () {
                 deviceLanguage = navigator.language;
@@ -68,6 +70,10 @@
 
                 document.getElementById('downloads').innerHTML += getDownloadsPageInitialTemplate();
                 loadSavedPlaylists();
+                videoFormatSelected = localStorage.getItem('coco-video-format-selected');
+                
+                if(!videoFormatSelected)
+                    videoFormatSelected = '';
             }
 
             function handleSearch(){
@@ -104,12 +110,25 @@
                 nowPlayingDiv.style.display = '';
                 nowPlayingDiv.innerHTML = loadingHTML;
 
-                nowPlayingDiv.innerHTML = getPlayVideoTemplate(videoId, videoTitle, channelTitle, publishedAt, imgUrl);
+                nowPlayingDiv.innerHTML = getPlayVideoTemplate(videoId, videoTitle, channelTitle, publishedAt, imgUrl, videoFormatSelected);
                 document.getElementsByTagName('video')[0].addEventListener('progress', onVideoLoaded);
                 document.getElementsByTagName('video')[0].addEventListener('error', onVideoError);
                 document.getElementsByTagName('video')[0].addEventListener('ended', onVideoEnd);
                 
                 videoLoadTimeout = setTimeout(onVideoError, 300000);
+
+                getQualityList(videoId, function (qualityList){
+                    videoQualityList = qualityList;
+                    if(qualityList && (qualityList.audio && qualityList.audio.length > 0) 
+                                    || (qualityList.video && qualityList.video.length > 0)) {
+                        var qualityBtn = document.getElementById('select-quality-btn-' + videoId);
+                        var qualityMenuDiv = document.getElementById('select-quality-menu-' + videoId);
+                        qualityBtn.style.display = "";
+                        qualityMenuDiv.innerHTML = getQualityListTemplate(qualityList,'select-quality-menu-' + videoId, videoFormatSelected, videoId);
+                    }
+
+                }, function(){
+                })
 
                 var similarTracksDiv = document.getElementById('similar-tracks');
                 similarTracksDiv.innerHTML = loadingHTML;
@@ -128,6 +147,13 @@
                 nowPlayingTracksDiv.innerHTML = getPlaylistTemplate(nowPlayingList,'nowplaying-tracks');
 
                 document.getElementById('side-menu').innerHTML = getMenuTemplate('nowplaying');
+            }
+
+            function handleChangeQuality(qualityListDivId, videoId, videoFormat, videoControlId){
+                videoFormatSelected = videoFormat;
+                localStorage.setItem('coco-video-format-selected',videoFormatSelected);
+                document.getElementById(qualityListDivId).innerHTML = getQualityListTemplate(videoQualityList, qualityListDivId, videoFormat, videoId);
+                changeQuality(videoId, videoFormat, videoControlId);
             }
 
             function onVideoLoaded(){
@@ -151,12 +177,25 @@
 
                     if(nextVideo){
                         var nowPlayingDiv = document.getElementById('nowplaying');
-                        nowPlayingDiv.innerHTML = getPlayVideoTemplate(nextVideo.id, nextVideo.videoTitle, nextVideo.channelTitle, nextVideo.publishedAt, nextVideo.imgUrl);
+                        nowPlayingDiv.innerHTML = getPlayVideoTemplate(nextVideo.id, nextVideo.videoTitle, nextVideo.channelTitle, nextVideo.publishedAt, nextVideo.imgUrl, videoFormatSelected);
                         document.getElementsByTagName('video')[0].addEventListener('progress', onVideoLoaded);
                         document.getElementsByTagName('video')[0].addEventListener('error', onVideoError);
                         document.getElementsByTagName('video')[0].addEventListener('ended', onVideoEnd);
                         
                         videoLoadTimeout = setTimeout(onVideoError, 300000);
+
+                        getQualityList(nextVideo.id, function (qualityList){
+                            videoQualityList = qualityList;
+                            if(qualityList && (qualityList.audio && qualityList.audio.length > 0) 
+                                            || (qualityList.video && qualityList.video.length > 0)) {
+                                var qualityBtn = document.getElementById('select-quality-btn-' + nextVideo.id);
+                                var qualityMenuDiv = document.getElementById('select-quality-menu-' + nextVideo.id);
+                                qualityBtn.style.display = "";
+                                qualityMenuDiv.innerHTML = getQualityListTemplate(qualityList,'select-quality-menu-' + nextVideo.id, videoFormatSelected, nextVideo.id);
+                            }
+
+                        }, function(){
+                        })
 
                         var similarTracksDiv = document.getElementById('similar-tracks');
                         similarTracksDiv.innerHTML = loadingHTML;
@@ -177,29 +216,43 @@
                     }
                     else{
                         if(nextSimilarVideo){
+                            var videoId = nextSimilarVideo.id.videoId;
                             var fixedTitle = nextSimilarVideo.snippet.title.replace(/["']/g, "");
                             var imgUrlComponents = nextSimilarVideo.snippet.thumbnails.medium.url.split('/');
                             var imgUrl = '/getimg?videoId=' + imgUrlComponents[imgUrlComponents.length - 2] 
                                     + '&fileName=' + imgUrlComponents[imgUrlComponents.length - 1];
 
                             var nowPlayingDiv = document.getElementById('nowplaying');
-                            nowPlayingDiv.innerHTML = getPlayVideoTemplate(nextSimilarVideo.id.videoId,fixedTitle,nextSimilarVideo.snippet.channelTitle,getTimeText(nextSimilarVideo.snippet.publishedAt), imgUrl);
+                            nowPlayingDiv.innerHTML = getPlayVideoTemplate(videoId,fixedTitle,nextSimilarVideo.snippet.channelTitle,getTimeText(nextSimilarVideo.snippet.publishedAt), imgUrl, videoFormatSelected);
                             document.getElementsByTagName('video')[0].addEventListener('progress', onVideoLoaded);
                             document.getElementsByTagName('video')[0].addEventListener('error', onVideoError);
                             document.getElementsByTagName('video')[0].addEventListener('ended', onVideoEnd);
                             
+                            getQualityList(videoId, function (qualityList){
+                                videoQualityList = qualityList;
+                                if(qualityList && (qualityList.audio && qualityList.audio.length > 0) 
+                                                || (qualityList.video && qualityList.video.length > 0)) {
+                                    var qualityBtn = document.getElementById('select-quality-btn-' + videoId);
+                                    var qualityMenuDiv = document.getElementById('select-quality-menu-' + videoId);
+                                    qualityBtn.style.display = "";
+                                    qualityMenuDiv.innerHTML = getQualityListTemplate(qualityList,'select-quality-menu-' + videoId, videoFormatSelected, videoId);
+                                }
+
+                            }, function(){
+                            })
+
                             var similarTracksDiv = document.getElementById('similar-tracks');
                             similarTracksDiv.innerHTML = loadingHTML;
 
-                            related(nextSimilarVideo.id.videoId, 50, function (results){
-                                results.items = results.items.filter(function (r) { return r.id.videoId != nextSimilarVideo.id.videoId });
+                            related(videoId, 50, function (results){
+                                results.items = results.items.filter(function (r) { return r.id.videoId != videoId });
                                 similarTracksDiv.innerHTML = getListTemplate(results, "SIMILAR");
                                 nextSimilarVideo = results.items[0];
                             }, function(){
                                 similarTracksDiv.innerHTML = '';
                             });
 
-                            videoPlayingId = nextSimilarVideo.id.videoId;
+                            videoPlayingId = videoId;
                             
                             var nowPlayingList = getList(nowPlayingListId);
                             var nowPlayingTracksDiv = document.getElementById('nowplaying-tracks');
@@ -316,12 +369,25 @@
 
                 if(!nowPlayingTracksDiv){
                     var nowPlayingDiv = document.getElementById('nowplaying');
-                    nowPlayingDiv.innerHTML = getPlayVideoTemplate(videoId, videoTitle, channelTitle, publishedAt, imgUrl);
+                    nowPlayingDiv.innerHTML = getPlayVideoTemplate(videoId, videoTitle, channelTitle, publishedAt, imgUrl, videoFormatSelected);
                     document.getElementsByTagName('video')[0].addEventListener('progress', onVideoLoaded);
                     document.getElementsByTagName('video')[0].addEventListener('error', onVideoError);
                     document.getElementsByTagName('video')[0].addEventListener('ended', onVideoEnd);
                     
                     videoLoadTimeout = setTimeout(onVideoError, 300000);
+
+                    getQualityList(videoId, function (qualityList){
+                        videoQualityList = qualityList;
+                        if(qualityList && (qualityList.audio && qualityList.audio.length > 0) 
+                                        || (qualityList.video && qualityList.video.length > 0)) {
+                            var qualityBtn = document.getElementById('select-quality-btn-' + videoId);
+                            var qualityMenuDiv = document.getElementById('select-quality-menu-' + videoId);
+                            qualityBtn.style.display = "";
+                            qualityMenuDiv.innerHTML = getQualityListTemplate(qualityList,'select-quality-menu-' + videoId, videoFormatSelected, videoId);
+                        }
+
+                    }, function(){
+                    })
 
                     var similarTracksDiv = document.getElementById('similar-tracks');
                     similarTracksDiv.innerHTML = loadingHTML;
@@ -376,6 +442,27 @@
 
                 if(listDiv)
                     listDiv.innerHTML = getPlaylistTemplate(list,listDivId);
+            }
+
+            function toggleConfigMenu(iconId, configMenuId){
+                var icon = document.getElementById(iconId);
+                
+                if(icon){
+                    iconClassName = icon.className;
+                    icon.setAttribute('class', iconClassName + ' fa-spin');
+
+                    setTimeout(function (){
+                        icon.setAttribute('class', iconClassName);
+                    },300);
+                }
+
+                var configMenu = document.getElementById(configMenuId);
+                
+                if(configMenu.style.display == ''){
+                    configMenu.style.display = 'none';
+                }else{
+                    configMenu.style.display = '';
+                }
             }
         </script>
     </body>

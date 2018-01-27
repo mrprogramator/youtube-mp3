@@ -48,3 +48,7 @@ function getNextVideo(){
 
     return nextVideo;
 }
+
+function changeQuality(videoId, videoFormat, videoControlId){
+    document.getElementById(videoControlId).src = "/stream?videoId=" + videoId + "&videoFormat=" + videoFormat;
+}

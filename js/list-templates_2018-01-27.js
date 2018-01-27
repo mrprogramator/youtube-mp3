@@ -111,7 +111,7 @@ function getPlaylistsTemplate(playlists) {
     return html;
 }
 
-function getPlayVideoTemplate(videoId, videoTitle, channelTitle, publishedAt, imgUrl) {
+function getPlayVideoTemplate(videoId, videoTitle, channelTitle, publishedAt, imgUrl, videoFormat) {
     var html = '';
     
     if(videoId){
@@ -119,7 +119,7 @@ function getPlayVideoTemplate(videoId, videoTitle, channelTitle, publishedAt, im
                 + "<div id=\"loading-video-div\" style=\"height:100%;padding-top:20%\">"
                     + "<i class=\"fa fa-cog fa-spin fa-4x\"></i>"
                 +"</div>"
-                + "<video src=\"/stream?videoId=" + videoId + "\" style=\"width:100%;height:100%;display:none\" poster=\"" + imgUrl + "\" autoplay controls></video>"
+                + "<video id=\"video-control-" + videoId + "\" src=\"/stream?videoId=" + videoId + "&videoFormat=" + videoFormat + "\" style=\"width:100%;height:100%;display:none\" poster=\"" + imgUrl + "\" autoplay controls></video>"
             +"</div>"
             + "<table style=\"width:100%;border-collapse:collapse\">"
                 + "<tr>"
@@ -144,6 +144,11 @@ function getPlayVideoTemplate(videoId, videoTitle, channelTitle, publishedAt, im
                             + "<i class=\"fa fa-video-camera fa-2x\" style=\"margin-right:7px\"></i> "
                             + (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "DESCARGAR V&Iacute;DEO" : "DOWNLOAD VIDEO")
                         + "</a>"
+                        + "<a id=\"select-quality-btn-" + videoId + "\" class=\"video-action-btn\" style=\"display:none\" onclick=\"toggleConfigMenu('select-quality-icon-" + videoId + "','select-quality-menu-" + videoId + "')\">"
+                            + "<i id=\"select-quality-icon-" + videoId + "\" class=\"fa fa-cog fa-2x\" style=\"margin:7px\"></i>"
+                            + "<div id=\"select-quality-menu-" + videoId + "\" style=\"position:absolute;right:14px;top:48%;background:rgba(17, 17, 17, 0.75);min-width:137px;height:279px;overflow-y:scroll;index:1;display:none\">"
+                            +"</div>"
+                        + "</a> "
                     +"</td>"
                 +"</tr>"
             +"</table>"
@@ -240,5 +245,56 @@ function getPlaylistTemplate(list, listDivId){
         html += "</table>";
     }
 
+    return html;
+}
+
+function getQualityListTemplate(qualityList, qualityListDivId, formatCodeSelected, videoId){
+    var html = '';
+    if(qualityList){
+        if(qualityList.video && qualityList.video.length > 0){
+            html += "<div style=\"text-align:left;padding:4px;padding-top:7px\"><strong>"
+                + (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "V&iacute;deo": "Video")
+            +"</strong></div>";
+
+            qualityList.video.forEach(function (qVideo){
+                html += "<div class=\"video-action-btn\" " + (formatCodeSelected == qVideo.format_code? "style=\"color:#009688\"": "") + " onclick=\"handleChangeQuality('" + qualityListDivId + "','" + videoId + "','" + qVideo.format_code + "','video-control-" + videoId + "')\">" 
+                    + (formatCodeSelected == qVideo.format_code? "<span class=\"fa fa-check-circle\" style=\"margin-right:7px\"></span>": "") 
+                    + qVideo.note.split(' ')[0] + " " + qVideo.extension  + " (" + qVideo.resolution + ")" 
+                    + "<span class=\"fa fa-info-circle tooltip\" style=\"margin-left:7px\">"
+                        + "<span class=\"tooltiptext tooltiptext-left\">" + qVideo.note + "</span>"
+                    +"</span>"
+                + "</div>";
+            });
+        }
+
+        if(qualityList.videoOnly && qualityList.videoOnly.length > 0){
+            html += "<div style=\"text-align:left;border-top:1px solid;padding:4px;padding-top:7px\"><strong>"
+                + (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "S&oacute;lo v&iacute;deo": "Only video")
+            +"</strong></div>";
+
+            qualityList.videoOnly.forEach(function (qVideo){
+                html += "<div class=\"video-action-btn\" " + (formatCodeSelected == qVideo.format_code? "style=\"color:#009688\"": "") + " onclick=\"handleChangeQuality('" + qualityListDivId + "','" + videoId + "','" + qVideo.format_code + "','video-control-" + videoId + "')\">" 
+                    + (formatCodeSelected == qVideo.format_code? "<span class=\"fa fa-check-circle\" style=\"margin-right:7px\"></span>": "") 
+                    + qVideo.note.split(' ')[0] + " " + qVideo.extension  + " (" + qVideo.resolution + ")"
+                    + "<span class=\"fa fa-info-circle tooltip\" style=\"margin-left:7px\">"
+                        + "<span class=\"tooltiptext tooltiptext-left\">" + qVideo.note + "</span>"
+                    +"</span>"
+                + "</div>";
+            });
+        }
+
+        if(qualityList.audio && qualityList.audio.length > 0){
+            html += "<div style=\"text-align:left;border-top:1px solid;padding:4px;padding-top:7px\"><strong>Audio</strong></div>"
+            qualityList.audio.forEach(function (qAudio){
+                html += "<div class=\"video-action-btn\" " + (formatCodeSelected == qAudio.format_code? "style=\"color:#009688\"": "") + " onclick=\"handleChangeQuality('" + qualityListDivId + "','" + videoId + "','" + qAudio.format_code + "','video-control-" + videoId + "')\">" 
+                        + (formatCodeSelected == qAudio.format_code? "<span class=\"fa fa-check-circle\" style=\"margin-right:7px\"></span>": "") 
+                        + " " + qAudio.extension  + " (" + qAudio.note.split(' ')[qAudio.note.split(' ').length - 1] + ")"
+                        + "<span class=\"fa fa-info-circle tooltip\" style=\"margin-left:7px\">"
+                            + "<span class=\"tooltiptext tooltiptext-left\">" + qAudio.note + "</span>"
+                        +"</span>"
+                    + "</div>";
+            });
+        }
+    }
     return html;
 }
