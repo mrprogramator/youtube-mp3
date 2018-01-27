@@ -52,3 +52,7 @@ function getNextVideo(){
 function changeQuality(videoId, videoFormat, videoControlId){
     document.getElementById(videoControlId).src = "/stream?videoId=" + videoId + "&videoFormat=" + videoFormat;
 }
+
+function setAutoQuality(videoId, videoControlId){
+    document.getElementById(videoControlId).src = "/stream?videoId=" + videoId;
+}

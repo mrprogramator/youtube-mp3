@@ -166,8 +166,18 @@
             }
 
             function onVideoError(){
-                document.getElementById('loading-video-div').innerHTML = "<i class=\"fa fa-bug fa-4x\"></i><br>"
-                + (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "Error al cargar el v&iacute;deo" : "Could not load video");
+                if(videoFormatSelected){
+                    videoFormatSelected = '';
+                    localStorage.setItem('coco-video-format-selected',videoFormatSelected);
+                    document.getElementById('loading-video-div').innerHTML = "<i class=\"fa fa-exclamation-circle fa-4x\"></i><br>"
+                + (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "Calidad de v&iacute;o no encontrada.<br>Cambiando a calidad automática" : "Video quality not found.<br>Changing to auto quality");
+                    setAutoQuality(videoPlayingId, 'video-control-' + videoPlayingId)
+                }
+                else{
+                    document.getElementById('loading-video-div').innerHTML = "<i class=\"fa fa-bug fa-4x\"></i><br>"
+                    + (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "Error al cargar el v&iacute;deo" : "Could not load video");
+                }
+                
             }
 
             function onVideoEnd(){

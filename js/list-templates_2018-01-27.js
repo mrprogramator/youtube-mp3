@@ -256,6 +256,14 @@ function getQualityListTemplate(qualityList, qualityListDivId, formatCodeSelecte
                 + (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "V&iacute;deo": "Video")
             +"</strong></div>";
 
+            html += "<div class=\"video-action-btn\" " + (!formatCodeSelected? "style=\"color:#009688\"": "") + " onclick=\"handleChangeQuality('" + qualityListDivId + "','" + videoId + "','','video-control-" + videoId + "')\">" 
+                + (!formatCodeSelected? "<span class=\"fa fa-check-circle\" style=\"margin-right:7px\"></span>": "") 
+                + (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "Autom&aacute;tica" : "Auto") 
+                + "<span class=\"fa fa-info-circle tooltip\" style=\"margin-left:7px\">"
+                    + "<span class=\"tooltiptext tooltiptext-left\">" + (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "Por defecto la mejor calidad" : "By default best quality") + "</span>"
+                +"</span>"
+            + "</div>";
+
             qualityList.video.forEach(function (qVideo){
                 html += "<div class=\"video-action-btn\" " + (formatCodeSelected == qVideo.format_code? "style=\"color:#009688\"": "") + " onclick=\"handleChangeQuality('" + qualityListDivId + "','" + videoId + "','" + qVideo.format_code + "','video-control-" + videoId + "')\">" 
                     + (formatCodeSelected == qVideo.format_code? "<span class=\"fa fa-check-circle\" style=\"margin-right:7px\"></span>": "") 
