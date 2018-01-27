@@ -119,7 +119,7 @@ function getPlayVideoTemplate(videoId, videoTitle, channelTitle, publishedAt, im
                 + "<div id=\"loading-video-div\" style=\"height:100%;padding-top:20%\">"
                     + "<i class=\"fa fa-cog fa-spin fa-4x\"></i>"
                 +"</div>"
-                + "<video src=\"/stream?videoId=" + videoId + "\" style=\"height:100%;display:none\" poster=\"" + imgUrl + "\" autoplay controls></video>"
+                + "<video src=\"/stream?videoId=" + videoId + "\" style=\"width:100%;height:100%;display:none\" poster=\"" + imgUrl + "\" autoplay controls></video>"
             +"</div>"
             + "<table style=\"width:100%;border-collapse:collapse\">"
                 + "<tr>"
