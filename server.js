@@ -191,7 +191,7 @@ app.post('/get-mp4', function (req, res){
         var process = child_process.spawn("./youtube-dl",
             ['--ffmpeg-location','./ffmpeg','-o',
             folderName + "/%(title)s.%(ext)s",'--format',
-            'mp4','--no-playlist','--default-search','ytsearch', videoId]);
+            'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best','--no-playlist','--default-search','ytsearch', videoId]);
 
         process.stdout.on('data', function (data) {
             if (currentClient){
