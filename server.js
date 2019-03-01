@@ -17,6 +17,21 @@ var ms = require('mediaserver');
 
 httpServer.listen(process.env.PORT || 8080, function(){
   console.log('listening on :', process.env.PORT || 8080);
+  
+  var upgradeProcess = child_process.spawn("./youtube-dl",['-U']);
+  var logProccess = "";
+  upgradeProcess.stdout.on('data', function (data) {
+      logProccess += data.toString();
+      
+  });
+
+  upgradeProcess.stderr.on('data', function (data) {
+      console.log('stderr: ' + data);
+  });
+  
+  upgradeProcess.on('exit', function () {
+      console.log(logProccess);
+  })
 });
 
 io.on('connection', function(socket){

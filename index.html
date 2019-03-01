@@ -34,6 +34,9 @@
                             </button>
                         </form>
                     </td>
+                    <td style="vertical-align:middle;text-align:right">
+                        <span id="yt-version"></span>
+                    </td>
                 </tr>
             </table>
         </div>
@@ -75,8 +78,16 @@
                 
                 if(!videoFormatSelected)
                     videoFormatSelected = '';
+                checkYoutubeDlVersion();
             }
 
+            function checkYoutubeDlVersion(){
+                makeHTTPRequest('/version', 'GET', function(ytVersion){
+                    document.getElementById('yt-version').innerHTML = '<strong>youtube-dl: </strong>' + ytVersion;
+                }, function(){});
+                
+                setTimeout(checkYoutubeDlVersion, 300000);
+            }
             function handleSearch(){
                 var resultsDiv = document.getElementById('results');
                 var searchInput = document.getElementById('search-input');
