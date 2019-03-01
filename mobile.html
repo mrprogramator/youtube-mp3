@@ -12,7 +12,7 @@
         <link href="/css/tooltip.css" rel="stylesheet">
     </head>
     <body>
-        <div style="height:56px;background:rgb(35,35,35);position:fixed;top:0px;width:100%;z-index:1">
+        <div style="height:56px;background:rgb(35,35,35);position:fixed;top:0px;width:100%;z-index:200">
             <table style="width:100%">
                 <tr>
                     <td class="btn-toggle-menu" onclick="toggleSideMenu()" style="vertical-align:middle;width:50px;text-align:right">
@@ -26,26 +26,33 @@
                     <td style="vertical-align:middle;width:127px">
                         <text style="font-weight:bold;font-size:1.7em;">coco</text>
                     </td>
-                    <td style="vertical-align:middle">
-                        <form onsubmit="return handleSearch()">
-                            <input id="search-input" type="search" style="background:hsl(0, 0%, 7%);color:hsl(0, 0%, 100%);-webkit-appearance: none;-webkit-font-smoothing: antialiased;font-size: 16px;font-weight: 400;line-height: 24px;margin-left: 4px;padding-left:7px;width:100%;max-width:591px;border:1px solid hsl(0, 0%, 18.82%);border-radius:2px" autofocus/>
-                            <button type="submit" style="cursor: pointer;display:inline-block;text-align:center;width: 65px;border: 1px solid hsl(0, 0%, 18.82%);background-color: hsla(0, 0%, 100%, .08);border-radius: 0 2px 2px 0;margin: 0;color:hsla(0, 100%, 100%, .5);padding:4px;font-size:1.4em">
-                                <i class="fa fa-search"></i>
-                            </button>
-                        </form>
-                    </td>
+                    
                     <td style="vertical-align:middle;text-align:right">
                         <span id="yt-version"></span>
                     </td>
                 </tr>
             </table>
         </div>
-        <div id="side-menu" style="padding-top:68px;position:fixed;top:0px;width:240px;background:#1c1c1c;height:100%;overflow:hidden">
+        <div id="side-menu" style="padding-top:68px;position:fixed;top:0px;width:240px;background:#1c1c1c;height:100%;overflow:hidden;z-index:100">
         </div>
-        <div id="results" style="margin-left:240px;padding:14px;padding-top:56px;">
+        <div style="padding-top:56px;position:fixed;width:100%;background:inherit;z-index:50">
+            <table style="width:100%">
+                <tr>
+                    <td style="vertical-align:middle">
+                        <form onsubmit="return handleSearch()">
+                            <input id="search-input" type="search" style="background:hsl(0, 0%, 7%);color:hsl(0, 0%, 100%);-webkit-appearance: none;-webkit-font-smoothing: antialiased;font-size: 16px;font-weight: 400;line-height: 24px;margin-left: 4px;padding-left:7px;width:78%;border:1px solid hsl(0, 0%, 18.82%);border-radius:2px" autofocus/>
+                            <button type="submit" style="cursor: pointer;display:inline-block;text-align:center;width: 20%;border: 1px solid hsl(0, 0%, 18.82%);background-color: hsla(0, 0%, 100%, .08);border-radius: 0 2px 2px 0;margin: 0;color:hsla(0, 100%, 100%, .5);padding:4px;font-size:1.4em">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            </table>
         </div>
-        <div id="nowplaying" style="margin-left:240px;padding:14px;padding-top:56px;height:100%;display:none"></div>
-        <div id="downloads" style="margin-left:240px;padding:14px;padding-top:56px;display:none">
+        <div id="results" style="padding:14px;padding-top:94px;text-align:center">
+        </div>
+        <div id="nowplaying" style="padding:14px;padding-top:94px;height:100%;display:none"></div>
+        <div id="downloads" style="padding:14px;padding-top:94px;display:none">
             <table id="downloads-list" style="display:none"></table>
         </div>
         <script src="js/request.js"></script>
@@ -68,8 +75,8 @@
             var videoFormatSelected = '';
             
             window.onload = function () {
-                if(window.innerWidth < 400){
-                    window.location.href = 'mobile.html';
+                if(window.innerWidth > 400){
+                    window.location.href = '/';
                 }
                 else{
                     deviceLanguage = navigator.language;
@@ -105,7 +112,7 @@
                 resultsDiv.innerHTML = loadingHTML;
                 
                 search(indication, 50, function (results){
-                    resultsDiv.innerHTML = getListTemplate(results);
+                    resultsDiv.innerHTML = getBoxTemplate(results, "");
                 }, function () {
                     resultsDiv.innerHTML = "<div style=\"text-align:center\">"
                         + "<i class=\"fa fa-bug\"> Error"
@@ -151,10 +158,11 @@
 
                 var similarTracksDiv = document.getElementById('similar-tracks');
                 similarTracksDiv.innerHTML = loadingHTML;
-                
+                similarTracksDiv.style['text-align'] = 'center';
+
                 related(videoId, 50, function (results){
                     results.items = results.items.filter(function (r) { return r.id.videoId != videoId });
-                    similarTracksDiv.innerHTML = getListTemplate(results,"SIMILAR");
+                    similarTracksDiv.innerHTML = getBoxTemplate(results,"SIMILAR");
                     nextSimilarVideo = results.items[0];                    
                 }, function(){
                     similarTracksDiv.innerHTML = '';
@@ -230,10 +238,11 @@
 
                         var similarTracksDiv = document.getElementById('similar-tracks');
                         similarTracksDiv.innerHTML = loadingHTML;
+                        similarTracksDiv.style['text-align'] = 'center';
                         
                         related(nextVideo.id, 50, function (results){
                             results.items = results.items.filter(function (r) { return r.id.videoId != nextVideo.id });
-                            similarTracksDiv.innerHTML = getListTemplate(results, "SIMILAR");
+                            similarTracksDiv.innerHTML = getBoxTemplate(results, "SIMILAR");
                             nextSimilarVideo = results.items[0];
                         }, function(){
                             similarTracksDiv.innerHTML = '';
@@ -276,10 +285,11 @@
 
                             var similarTracksDiv = document.getElementById('similar-tracks');
                             similarTracksDiv.innerHTML = loadingHTML;
+                            similarTracksDiv.style['text-align'] = 'center';
 
                             related(videoId, 50, function (results){
                                 results.items = results.items.filter(function (r) { return r.id.videoId != videoId });
-                                similarTracksDiv.innerHTML = getListTemplate(results, "SIMILAR");
+                                similarTracksDiv.innerHTML = getBoxTemplate(results, "SIMILAR");
                                 nextSimilarVideo = results.items[0];
                             }, function(){
                                 similarTracksDiv.innerHTML = '';
@@ -314,6 +324,7 @@
                 })
 
                 document.getElementById('side-menu').innerHTML = getMenuTemplate('home');
+                toggleSideMenu();
             }
 
             function showTrending(){
@@ -326,7 +337,8 @@
                 resultsDiv.innerHTML = loadingHTML;
 
                 loadTrending(50, function (results){
-                    resultsDiv.innerHTML = getListTemplate(results);
+                    var trendingTitle = (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "Tendencias" : "Trending");
+                    resultsDiv.innerHTML = getBoxTemplate(results, trendingTitle);
                 }, function (){
                     resultsDiv.innerHTML = "<div style=\"text-align:center\">"
                         + "<i class=\"fa fa-bug\"> Error"
@@ -334,6 +346,7 @@
                 })
 
                 document.getElementById('side-menu').innerHTML = getMenuTemplate('trending');
+                toggleSideMenu();
             }
 
             function showPlaylists() {
@@ -346,6 +359,7 @@
                 resultsDiv.style.display = '';
                 resultsDiv.innerHTML = getPlaylistsTemplate([]);
                 document.getElementById('side-menu').innerHTML = getMenuTemplate('playlists');
+                toggleSideMenu();
             }
 
             function showDownloads(){
@@ -358,6 +372,7 @@
                 downloadsDiv.style.display = '';
 
                 document.getElementById('side-menu').innerHTML = getMenuTemplate('downloads');
+                toggleSideMenu();
             }
 
             function showNowPlaying() {
@@ -375,6 +390,7 @@
                 }
 
                 document.getElementById('side-menu').innerHTML = getMenuTemplate('nowplaying');
+                toggleSideMenu();
             }
 
             function toggleSideMenu(){
@@ -390,9 +406,9 @@
                     sideMenu.style.display = 'none';
                 }
 
-                resultsDiv.style['margin-left'] = sideMenu.offsetWidth + 'px';
-                nowPlayingDiv.style['margin-left'] = sideMenu.offsetWidth + 'px';
-                downloadsDiv.style['margin-left'] = sideMenu.offsetWidth + 'px';
+                // resultsDiv.style['margin-left'] = sideMenu.offsetWidth + 'px';
+                // nowPlayingDiv.style['margin-left'] = sideMenu.offsetWidth + 'px';
+                // downloadsDiv.style['margin-left'] = sideMenu.offsetWidth + 'px';
             }
 
             function handleAddNowPlaying(videoId, videoTitle, channelTitle, publishedAt, imgUrl, resultsDivId, hideLabels){
@@ -426,10 +442,11 @@
 
                     var similarTracksDiv = document.getElementById('similar-tracks');
                     similarTracksDiv.innerHTML = loadingHTML;
-                    
+                    similarTracksDiv.style['text-align'] = 'center';
+
                     related(videoId, 50, function (results){
                         results.items = results.items.filter(function (r) { return r.id.videoId != videoId });
-                        similarTracksDiv.innerHTML = getListTemplate(results, "SIMILAR");
+                        similarTracksDiv.innerHTML = getBoxTemplate(results, "SIMILAR");
                         nextSimilarVideo = results.items[0];                        
                     }, function(){
                         similarTracksDiv.innerHTML = '';
