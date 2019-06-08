@@ -222,6 +222,36 @@ app.post('/get-mp4', function (req, res){
     })
 })
 
+app.post('/direct-download', function (req, res){
+    var videoId = req.query.videoId;
+    var folderName = req.query.folderName;
+    var socketId = req.query.socketId;
+    var currentClient = io.sockets.connected[socketId];
+    
+    res.send(true);
+
+    fs.mkdir(folderName, function () {
+        var downloadParams = ['--ffmpeg-location','./ffmpeg','-o',
+        folderName + "/%(title)s.%(ext)s"];
+        downloadParams = downloadParams.concat(videoId.split(' '));
+
+        var process = child_process.spawn("./youtube-dl",
+            downloadParams);
+
+        process.stdout.on('data', function (data) {
+            if (currentClient){
+                currentClient.emit('data', data.toString());
+            }
+        });
+
+        process.on('exit', function (code, data) {
+            if (currentClient){
+                currentClient.emit('finish');
+            }
+        });
+    })
+})
+
 app.get('/get-media', function (req, res){
     var folderName = req.query.folderName;
 

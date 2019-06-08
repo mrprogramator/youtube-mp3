@@ -19,16 +19,26 @@ function downloadURI(uri, name) {
     delete link;
 }
 
-function getMedia(url, fileExtension, videoId, videoName, channelTitle, publishedAt, imgUrl, resultsDivId, hideLabels) {
+function getMedia(url, fileExtension, videoId, videoName, channelTitle, publishedAt, imgUrl, resultsDivId, hideLabels, outputContainerId) {
     
     var fileType = '';
+    var loadingIcon = '';
+
     switch(fileExtension)
     {
-        case 'mp3': fileType = "audio"; break;
-        case 'mp4': fileType = (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "v&iacute;deo" : "video"); break;
+        case 'mp3': 
+            fileType = "audio";
+            loadingIcon = "fa-music";
+            break;
+        case 'mp4': 
+            fileType = (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "v&iacute;deo" : "video");
+            loadingIcon = "fa-video-camera";
+            break;
+        default : 
+            fileType = (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "archivo" : "file");
+            loadingIcon = "fa-cloud-download";
+            break;
     }
-
-    var loadingIcon = (fileExtension == 'mp3'? 'fa-music': 'fa-video-camera');
     
     if(downloadingMedia){
         var pendingDownloadItem = pendingDownloads.filter(function (item) { 
@@ -85,6 +95,13 @@ function getMedia(url, fileExtension, videoId, videoName, channelTitle, publishe
 
             progressMessageHTML = (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "Descargando v&iacute;deo" : "Downloading video");            
             break;
+        
+        default:
+            resulstsDivInnerHTML = "<i class=\"fa fa-cloud-download\" style=\"margin-right:7px\"></i> "
+            + (!hideLabels? (deviceLanguage && deviceLanguage.indexOf('es') >= 0 ? "DESCARGAR ARCHIVO" : "DOWNLOAD FILE"):"");
+
+            progressMessageHTML = "";            
+            break;
     }
 
     var folderName = buildFolderName();
@@ -95,16 +112,35 @@ function getMedia(url, fileExtension, videoId, videoName, channelTitle, publishe
         resultsDivOnDownloadPage = document.getElementById(videoId + '-download-progress-' + fileExtension);
     }
 
-    var resultsDiv = document.getElementById(resultsDivId);
-    if(resultsDiv)
-        resultsDiv.innerHTML = "<span class=\"fa fa-cog fa-2x fa-spin\"></span> " 
-                                + (!hideLabels? 
-                                    progressMessageHTML + " <span id=\"" + videoId + "-progbtn-" + fileExtension + "\"></span>"
-                                    : "<span class=\"tooltiptext tooltiptext-bottom\">" 
-                                        + progressMessageHTML 
-                                        + " <span id=\"" + videoId + "-progbtn-" + fileExtension + "\"></span>"
-                                    + "</span>");
+    var outputConainer = null;
+    
+    if(outputContainerId){
+        outputConainer = document.getElementById(outputContainerId);
 
+        if(outputConainer)
+            outputConainer.value = '';
+    }
+
+    var resultsDiv = document.getElementById(resultsDivId);
+    if(resultsDiv && !outputConainer){
+        resultsDiv.innerHTML = "<span class=\"fa fa-cog fa-2x fa-spin\"></span> " 
+        + (!hideLabels? 
+            progressMessageHTML + " <span id=\"" + videoId + "-progbtn-" + fileExtension + "\"></span>"
+            : "<span class=\"tooltiptext tooltiptext-bottom\">" 
+                + progressMessageHTML 
+                + " <span id=\"" + videoId + "-progbtn-" + fileExtension + "\"></span>"
+            + "</span>");
+    }
+    else{
+        resultsDiv.innerHTML = "<span class=\"fa fa-cog fa-spin\"></span> " 
+        + (!hideLabels? 
+            progressMessageHTML + " <span id=\"" + videoId + "-progbtn-" + fileExtension + "\"></span>"
+            : "<span class=\"tooltiptext tooltiptext-bottom\">" 
+                + progressMessageHTML 
+                + " <span id=\"" + videoId + "-progbtn-" + fileExtension + "\"></span>"
+            + "</span>");
+    }
+        
     resultsDivOnDownloadPage.innerHTML = "<span class=\"fa fa-cog fa-spin\" style=\"color:#009688\"></span> "
         + progressMessageHTML
         + " <span id=\"" + videoId + "-prog-" + fileExtension + "\"></span>";
@@ -126,7 +162,7 @@ function getMedia(url, fileExtension, videoId, videoName, channelTitle, publishe
                     }
                 }
 
-                if(html){
+                if(html && !outputConainer){
                     var progBtn =document.getElementById(videoId + '-progbtn-' + fileExtension);
                     
                     if(progBtn)
@@ -137,11 +173,16 @@ function getMedia(url, fileExtension, videoId, videoName, channelTitle, publishe
                     if(prog)
                         prog.innerHTML = html;
                 }
+
+                if(outputConainer){
+                    outputConainer.value += data;
+                    outputConainer.scrollTop = outputConainer.scrollHeight;
+                }
             });
 
             socket.on('finish', function (){
                 resultsDivOnDownloadPage = document.getElementById(videoId + '-download-progress-' + fileExtension);
-                if(resultsDivOnDownloadPage){
+                if(resultsDivOnDownloadPage && !outputConainer){
                     resultsDivOnDownloadPage.innerHTML = "<span class=\"fa fa-check-circle\" style=\"color:#009688\"></span> "
                     + fileType
                     + (deviceLanguage && deviceLanguage.indexOf('es') >= 0? " descargado": " downloaded");
@@ -157,11 +198,15 @@ function getMedia(url, fileExtension, videoId, videoName, channelTitle, publishe
                         + "</span>");
 
                     setTimeout(function () {
+                        if(fileExtension){
+                            downloadURI('/get-media?folderName=' + folderName,videoName + '.' + fileExtension);
+                        }
+                        else{
+                            downloadURI('/get-media?folderName=' + folderName, 'get-media');
+                        }
                         resultsDiv.innerHTML = resulstsDivInnerHTML;
                     }, 3000);
                 }
-                
-                downloadURI('/get-media?folderName=' + folderName,videoName + '.' + fileExtension);
 
                 downloadingMedia = false;
                 videoDownloadingId = '';
