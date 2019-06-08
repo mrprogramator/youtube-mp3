@@ -30,6 +30,12 @@ var menuItems = [
         label: (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "Descargas" : "Downloads"),
         icon: 'fa-download',
         action:'showDownloads()'
+    },
+    {
+        id: 'direct-download',
+        label: (deviceLanguage && deviceLanguage.indexOf('es') >= 0? "Descarga directa" : "Direct Download"),
+        icon: 'fa-cloud-download',
+        action:'showDirectDownload()'
     }
 ]
 
