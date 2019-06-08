@@ -9,7 +9,7 @@ function getBoxTemplate(trendingList, title){
             var imgUrl = '/getimg?videoId=' + imgUrlComponents[imgUrlComponents.length - 2] 
                     + '&fileName=' + imgUrlComponents[imgUrlComponents.length - 1];
 
-            var fixedTitle = item.snippet.title.replace(/["']/g, "");
+            var fixedTitle = item.snippet.title.replace(/[&#39;&#34;\"\']/g, "");
             html += "<div style=\"display:inline-block;padding:7px;width:250px;height:233px\">"
                 + "<div style=\"text-align:center\">"
                     + "<img src=\"" + imgUrl + "\" onclick=\"handlePlay('" + item.id.videoId + "','" + fixedTitle + "','" + item.snippet.channelTitle + "','" + getTimeText(item.snippet.publishedAt) + "','" + imgUrl + "')\" style=\"cursor:pointer;max-width:232px\"/>"
@@ -52,7 +52,7 @@ function getListTemplate(searchResultsList, title){
     if(searchResultsList && searchResultsList.items && searchResultsList.items.length > 0){
         html += "<table style=\"width:100%\">";
         searchResultsList.items.forEach(function (item){
-            var fixedTitle = item.snippet.title.replace(/["']/g, "");
+            var fixedTitle = item.snippet.title.replace(/[&#39;&#34;\"\']/g, "");
             var imgUrlComponents = item.snippet.thumbnails.medium.url.split('/');
             var imgUrl = '/getimg?videoId=' + imgUrlComponents[imgUrlComponents.length - 2] 
                     + '&fileName=' + imgUrlComponents[imgUrlComponents.length - 1];
