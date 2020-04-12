@@ -256,13 +256,25 @@ app.post('/direct-download', function (req, res){
 
 app.get('/get-media', function (req, res){
     var folderName = req.query.folderName;
-
-    glob(folderName + "/*", function (err, files) {
+    
+    fs.readdir(folderName + "/", function(err, files){
+        files = files.map(function (fileName) {
+          return {
+            name: fileName,
+            time: fs.statSync(dir + '/' + fileName).mtime.getTime()
+          };
+        })
+        .sort(function (a, b) {
+          return a.time - b.time; })
+        .map(function (v) {
+          return v.name; 
+        });
+      
         if(!files || files.length === 0) {
             res.send(false);
         }
         else{
-            var file = files[1];
+            var file = files[0];
             console.log('File to download:' + file);
             if(file){
                 var fileExt = file.split('.')[1];
@@ -281,7 +293,7 @@ app.get('/get-media', function (req, res){
                 res.send(false);
             }
         }
-    })
+    });
 })
 
 app.post('/download', function(req, res) {
