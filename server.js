@@ -217,7 +217,7 @@ app.post('/get-mp4', function (req, res){
 
         process.on('exit', function (code, data) {
             if (currentClient){
-                console.log("F I N I S H !!!!!!");
+                console.log("F I N I S H !!!!!!", code, data);
                 currentClient.emit('finish');
             }
         });
