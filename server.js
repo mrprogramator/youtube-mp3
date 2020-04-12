@@ -210,6 +210,7 @@ app.post('/get-mp4', function (req, res){
 
         process.stdout.on('data', function (data) {
             if (currentClient){
+                console.log(data.toString());
                 currentClient.emit('data', data.toString());
             }
         });
