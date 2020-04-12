@@ -2,10 +2,6 @@
   "name": "lub-service",
   "description": "N/A",
   "version": "1.0.0",
-  "engines": {
-    "node": "7.6.0",
-    "npm": "4.3.0"
-  },
   "dependencies": {
     "child_process": "*",
     "express": "*",
