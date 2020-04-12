@@ -1,6 +1,6 @@
 var express = require('express');
 var app = express();
-//var youtubedl = require('youtube-dl');
+var youtubedl = require('youtube-dl');
 
 app.use(express.static(__dirname + ''));
 
@@ -156,13 +156,13 @@ app.post('/related', function (req, res){
 app.get('/stream', function (req, res){
     var videoId = req.query.videoId;
     var videoFormat = req.query.videoFormat;
-    //var video = youtubedl(videoId,(videoFormat? ['--format=' + videoFormat]: []));
-    //video.pipe(res);
+    var video = youtubedl(videoId,(videoFormat? ['--format=' + videoFormat]: []));
+    video.pipe(res);
 
-    //video.on('error', function error(err) {
-    //    console.log('error:', err);
-    //    res.send(null);
-    //});
+    video.on('error', function error(err) {
+        console.log('error:', err);
+        res.send(null);
+    });
 })
 
 app.post('/get-mp3', function (req, res){
