@@ -261,7 +261,7 @@ app.get('/get-media', function (req, res){
         files = files.map(function (fileName) {
           return {
             name: fileName,
-            time: fs.statSync(dir + '/' + fileName).mtime.getTime()
+            time: fs.statSync(folderName + '/' + fileName).mtime.getTime()
           };
         })
         .sort(function (a, b) {
