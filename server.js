@@ -256,7 +256,7 @@ app.post('/direct-download', function (req, res){
 
 app.get('/get-media', function (req, res){
     var folderName = req.query.folderName;
-    setTimeout({
+    setTimeout(function () {
         fs.readdir(folderName + "/", function(err, files){
             files = files.map(function (fileName) {
               return {
