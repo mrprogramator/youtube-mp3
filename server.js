@@ -274,7 +274,7 @@ app.get('/get-media', function (req, res){
             res.send(false);
         }
         else{
-            var file = files[0];
+            var file = files[files.length - 1];
             console.log('File to download:' + file);
             if(file){
                 var fileExt = file.split('.')[1];
