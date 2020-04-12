@@ -274,6 +274,7 @@ app.get('/get-media', function (req, res){
             res.send(false);
         }
         else{
+            console.log(files);
             var file = files[1];
             console.log('File to download:' + file);
             if(file){
