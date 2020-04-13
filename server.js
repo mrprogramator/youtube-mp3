@@ -32,6 +32,21 @@ httpServer.listen(process.env.PORT || 8080, function(){
   upgradeProcess.on('exit', function () {
       console.log(logProccess);
   })
+
+  var upgradeProcess = child_process.spawn("ffmpeg",[]);
+  var logProccess = "";
+  upgradeProcess.stdout.on('data', function (data) {
+      logProccess += data.toString();
+      
+  });
+
+  upgradeProcess.stderr.on('data', function (data) {
+      console.log('stderr: ' + data);
+  });
+  
+  upgradeProcess.on('exit', function () {
+      console.log(logProccess);
+  })
 });
 
 io.on('connection', function(socket){
@@ -256,28 +271,17 @@ app.post('/direct-download', function (req, res){
 
 app.get('/get-media', function (req, res){
     var folderName = req.query.folderName;
-    fs.readdir(folderName + "/", function(err, files){
-        files = files.map(function (fileName) {
-          return {
-            name: fileName,
-            time: fs.statSync(folderName + '/' + fileName).mtime.getTime()
-          };
-        })
-        .sort(function (a, b) {
-          return a.time - b.time; })
-        .map(function (v) {
-          return v.name; 
-        });
 
+    glob(folderName + "/*", function (err, files) {
         if(!files || files.length === 0) {
             res.send(false);
         }
         else{
             var file = files[0];
-            console.log('File to download:' + file);
+            
             if(file){
                 var fileExt = file.split('.')[1];
-
+                
                 if(fileExt == 'mp3'){
                     ms.pipe(req, res,file,'audio/mp3');
                 }
@@ -292,8 +296,7 @@ app.get('/get-media', function (req, res){
                 res.send(false);
             }
         }
-    });
-    
+    })
 })
 
 app.post('/download', function(req, res) {
