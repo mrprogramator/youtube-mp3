@@ -210,14 +210,12 @@ app.post('/get-mp4', function (req, res){
 
         process.stdout.on('data', function (data) {
             if (currentClient){
-                console.log(data.toString());
                 currentClient.emit('data', data.toString());
             }
         });
 
         process.on('exit', function (code, data) {
             if (currentClient){
-                console.log("F I N I S H !!!!!!", code, data);
                 currentClient.emit('finish');
             }
         });
@@ -256,46 +254,43 @@ app.post('/direct-download', function (req, res){
 
 app.get('/get-media', function (req, res){
     var folderName = req.query.folderName;
-    setTimeout(function () {
-        fs.readdir(folderName + "/", function(err, files){
-            files = files.map(function (fileName) {
-              return {
-                name: fileName,
-                time: fs.statSync(folderName + '/' + fileName).mtime.getTime()
-              };
-            })
-            .sort(function (a, b) {
-              return a.time - b.time; })
-            .map(function (v) {
-              return v.name; 
-            });
+    fs.readdir(folderName + "/", function(err, files){
+        files = files.map(function (fileName) {
+          return {
+            name: fileName,
+            time: fs.statSync(folderName + '/' + fileName).mtime.getTime()
+          };
+        })
+        .sort(function (a, b) {
+          return a.time - b.time; })
+        .map(function (v) {
+          return v.name; 
+        });
 
-            if(!files || files.length === 0) {
-                res.send(false);
-            }
-            else{
-                console.log(files);
-                var file = files[files.length - 1];
-                console.log('File to download:' + file);
-                if(file){
-                    var fileExt = file.split('.')[1];
+        if(!files || files.length === 0) {
+            res.send(false);
+        }
+        else{
+            var file = files[0];
+            console.log('File to download:' + file);
+            if(file){
+                var fileExt = file.split('.')[1];
 
-                    if(fileExt == 'mp3'){
-                        ms.pipe(req, res,file,'audio/mp3');
-                    }
-                    else if(fileExt == 'mp4'){
-                        ms.pipe(req, res, file, 'video/mpeg');
-                    }
-                    else{
-                        ms.pipe(req, res, file, 'audio/webm');
-                    }
+                if(fileExt == 'mp3'){
+                    ms.pipe(req, res,file,'audio/mp3');
+                }
+                else if(fileExt == 'mp4'){
+                    ms.pipe(req, res, file, 'video/mpeg');
                 }
                 else{
-                    res.send(false);
+                    ms.pipe(req, res, file, 'audio/webm');
                 }
             }
-        });
-    }, 5000);
+            else{
+                res.send(false);
+            }
+        }
+    });
     
 })
 
