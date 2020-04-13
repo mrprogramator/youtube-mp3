@@ -210,12 +210,14 @@ app.post('/get-mp4', function (req, res){
 
         process.stdout.on('data', function (data) {
             if (currentClient){
+                console.log("ytdl->",data.toString());
                 currentClient.emit('data', data.toString());
             }
         });
 
         process.on('exit', function (code, data) {
             if (currentClient){
+                console.log("ytdl->finish lpm !!!!!",code,data);
                 currentClient.emit('finish');
             }
         });
