@@ -190,7 +190,7 @@ app.post('/get-mp3', function (req, res){
 
     fs.mkdir(folderName, function () {
         var process = child_process.spawn('./youtube-dl',
-        ['--ffmpeg-location','./ffmpeg','-o',
+        ['-o',
         folderName + "/%(title)s.%(ext)s",
         '--no-playlist','--extract-audio','--audio-format','mp3',
         '--default-search','ytsearch', videoId]);
@@ -225,14 +225,12 @@ app.post('/get-mp4', function (req, res){
 
         process.stdout.on('data', function (data) {
             if (currentClient){
-                console.log("ytdl->",data.toString());
                 currentClient.emit('data', data.toString());
             }
         });
 
         process.on('exit', function (code, data) {
             if (currentClient){
-                console.log("ytdl->finish lpm !!!!!",code,data);
                 currentClient.emit('finish');
             }
         });
