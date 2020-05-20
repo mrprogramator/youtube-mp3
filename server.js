@@ -32,6 +32,21 @@ httpServer.listen(process.env.PORT || 8080, function(){
   upgradeProcess.on('exit', function () {
       console.log(logProccess);
   })
+
+  var upgradeProcess = child_process.spawn("ffmpeg",[]);
+  var logProccess = "";
+  upgradeProcess.stdout.on('data', function (data) {
+      logProccess += data.toString();
+      
+  });
+
+  upgradeProcess.stderr.on('data', function (data) {
+      console.log('stderr: ' + data);
+  });
+  
+  upgradeProcess.on('exit', function () {
+      console.log(logProccess);
+  })
 });
 
 io.on('connection', function(socket){
@@ -175,7 +190,7 @@ app.post('/get-mp3', function (req, res){
 
     fs.mkdir(folderName, function () {
         var process = child_process.spawn('./youtube-dl',
-        ['--ffmpeg-location','./ffmpeg','-o',
+        ['-o',
         folderName + "/%(title)s.%(ext)s",
         '--no-playlist','--extract-audio','--audio-format','mp3',
         '--default-search','ytsearch', videoId]);
@@ -204,7 +219,7 @@ app.post('/get-mp4', function (req, res){
 
     fs.mkdir(folderName, function () {
         var process = child_process.spawn("./youtube-dl",
-            ['--ffmpeg-location','./ffmpeg','-o',
+            ['-o',
             folderName + "/%(title)s.%(ext)s",'--format',
             'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best','--no-playlist','--default-search','ytsearch', videoId]);
 

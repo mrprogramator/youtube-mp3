@@ -1,11 +1,7 @@
 {
-  "name": "youtuber-dl",
+  "name": "lub-service",
   "description": "N/A",
-  "version": "0.0.1",
-  "engines": {
-    "node": "7.6.0",
-    "npm": "4.3.0"
-  },
+  "version": "1.0.0",
   "dependencies": {
     "child_process": "*",
     "express": "*",
