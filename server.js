@@ -149,7 +149,7 @@ app.post('/search', function (req, res){
     var indication = encodeURIComponent(req.query.indication);
 
     https.get('https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=' + resultsCount + '&q=' 
-    + indication + '&type=video&key=AIzaSyDAZuFfSsFunJ5GbR8ur0ITum7QUfCN4XI', function(promise){
+    + indication + '&type=video&key=AIzaSyBtTuVOBQXaK-r3-KZt78kjNBzxn6JIK5A', function(promise){
         promise.pipe(res);
     }).on("error", function(e){
         res.send(null);
@@ -161,7 +161,7 @@ app.post('/related', function (req, res){
     var indication = encodeURIComponent(req.query.indication);
 
     https.get('https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=' + resultsCount + '&relatedToVideoId=' 
-    + indication + '&type=video&key=AIzaSyDAZuFfSsFunJ5GbR8ur0ITum7QUfCN4XI', function(promise){
+    + indication + '&type=video&key=AIzaSyBtTuVOBQXaK-r3-KZt78kjNBzxn6JIK5A', function(promise){
         promise.pipe(res);
     }).on("error", function(e){
         res.send(null);
